@@ -1,23 +1,33 @@
-# Las Informaciones con Leyni - Portal de Noticias
+# Las Informaciones con Leyni 📰
 
-Un portal de noticias moderno y profesional desarrollado con Next.js, TypeScript y Supabase.
+Sitio web profesional de noticias construido con Next.js, TypeScript y Supabase.
 
-## 🚀 Características
+## 🚀 Demo en Vivo
+- **Sitio web:** [https://leiny-informaciones.netlify.app](https://leiny-informaciones.netlify.app)
+- **Panel de administración:** `/admin`
 
-- **Portal de Noticias Completo**: Sistema de gestión de artículos y categorías
-- **Dashboard Administrativo**: Panel de control profesional con estadísticas y widgets
-- **Autenticación**: Sistema de usuarios con roles (administrador, publicista)
-- **Widget del Clima**: Información meteorológica en tiempo real para RD
-- **Responsive Design**: Diseño adaptable para todos los dispositivos
-- **SEO Optimizado**: Metadata dinámica y estructura optimizada para buscadores
-- **Sistema de Imágenes**: Optimización automática y fallbacks inteligentes
-- **Linting y TypeScript**: Código limpio y tipado para mantenibilidad
+## ✨ Características
+
+- 📱 **Diseño Responsivo** - Optimizado para móviles y desktop
+- 🎨 **Interfaz Moderna** - Diseño limpio inspirado en sitios de noticias profesionales  
+- 📰 **Gestión de Artículos** - CRUD completo para noticias
+- 📺 **Videos en Vivo** - Integración con YouTube Live
+- 🔐 **Panel de Administración** - Dashboard completo para gestión de contenido
+- 🖼️ **Gestión de Imágenes** - Subida y optimización automática
+- 🔍 **Sistema de Búsqueda** - Búsqueda en tiempo real de artículos
+- 📂 **Categorías** - Organización por categorías de noticias
+- 🌤️ **Widget del Clima** - Información meteorológica
+- 📧 **Newsletter** - Sistema de suscripción
+- ⚡ **Rendimiento Optimizado** - Next.js 16 con optimizaciones
 
 ## 🛠️ Tecnologías
 
-- **Frontend**: Next.js 16, React 19, TypeScript
-- **Styling**: Tailwind CSS
-- **Backend**: Supabase (Database, Auth, Storage)
+- **Frontend:** Next.js 16, React 19, TypeScript
+- **Styling:** Tailwind CSS
+- **Backend:** Supabase (PostgreSQL, Auth, Storage)
+- **Deployment:** Netlify
+- **Icons:** Lucide React
+- **Forms:** React Hook Form + Zod
 - **Icons**: Lucide React
 - **Forms**: React Hook Form + Zod
 - **Code Quality**: ESLint, TypeScript strict mode
