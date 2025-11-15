@@ -1,0 +1,356 @@
+import { createClient } from '@/lib/supabase/server'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { Metadata } from 'next'
+import ShareButtons from '@/components/ShareButtons'
+import OptimizedImage from '@/components/OptimizedImage'
+import { getCategorySlug } from '@/utils/categoryUtils'
+
+interface Category {
+  id: string
+  name: string
+  color?: string
+}
+
+interface Article {
+  id: string
+  title: string
+  excerpt: string
+  content: string
+  image_url?: string
+  created_at: string
+  author_id?: string
+  categories?: Category | Category[]
+}
+
+interface ArticlePageProps {
+  params: Promise<{ id: string }>
+}
+
+// Función para generar metadatos dinámicos
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const resolvedParams = await params
+  const { id } = resolvedParams
+  const supabase = await createClient()
+
+  const { data: article } = await supabase
+    .from('articles')
+    .select(`
+      id,
+      title,
+      excerpt,
+      content,
+      image_url,
+      created_at,
+      categories (
+        name
+      )
+    `)
+    .eq('id', id)
+    .eq('status', 'published')
+    .single()
+
+  if (!article) {
+    return {
+      title: 'Artículo no encontrado | Las Informaciones con Leyni',
+      description: 'El artículo que buscas no existe o ha sido eliminado.'
+    }
+  }
+
+  const categoryName = Array.isArray(article.categories) 
+    ? article.categories[0]?.name 
+    : (article.categories as Category)?.name || 'Noticias'
+
+  const cleanExcerpt = article.excerpt?.replace(/<[^>]*>/g, '') || article.title
+  const publishDate = new Date(article.created_at).toISOString()
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
+
+  return {
+    title: `${article.title} | Las Informaciones con Leyni`,
+    description: cleanExcerpt.substring(0, 155) + (cleanExcerpt.length > 155 ? '...' : ''),
+    keywords: [
+      article.title.split(' ').slice(0, 5).join(', '),
+      categoryName,
+      'noticias',
+      'República Dominicana',
+      'Las Informaciones con Leyni'
+    ].join(', '),
+    authors: [{ name: 'Redacción Las Informaciones con Leyni' }],
+    category: categoryName,
+    openGraph: {
+      title: article.title,
+      description: cleanExcerpt.substring(0, 155),
+      type: 'article',
+      publishedTime: publishDate,
+      authors: ['Redacción Las Informaciones con Leyni'],
+      section: categoryName,
+      tags: [categoryName, 'noticias', 'República Dominicana'],
+      url: `${siteUrl}/articulos/${id}`,
+      siteName: 'Las Informaciones con Leyni',
+      locale: 'es_ES',
+      images: article.image_url ? [
+        {
+          url: article.image_url,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+          type: 'image/jpeg'
+        }
+      ] : [
+        {
+          url: `${siteUrl}/og-default.jpg`,
+          width: 1200,
+          height: 630,
+          alt: 'Las Informaciones con Leyni',
+          type: 'image/jpeg'
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: cleanExcerpt.substring(0, 155),
+      creator: '@LasinformacionesLD',
+      site: '@LasinformacionesLD',
+      images: article.image_url ? [article.image_url] : [`${siteUrl}/og-default.jpg`]
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1
+      }
+    },
+    alternates: {
+      canonical: `${siteUrl}/articulos/${id}`
+    },
+    other: {
+      'article:published_time': publishDate,
+      'article:modified_time': publishDate,
+      'article:section': categoryName,
+      'article:author': 'Redacción Las Informaciones con Leyni',
+      'news_keywords': [categoryName, 'noticias', 'República Dominicana'].join(',')
+    }
+  }
+}
+
+export default async function ArticlePage({ params }: ArticlePageProps) {
+  const resolvedParams = await params
+  const { id } = resolvedParams
+  const supabase = await createClient()
+
+  // Obtener el artículo específico
+  const { data: article, error } = await supabase
+    .from('articles')
+    .select(`
+      id,
+      title,
+      excerpt,
+      content,
+      image_url,
+      created_at,
+      author_id,
+      categories (
+        id,
+        name,
+        color
+      )
+    `)
+    .eq('id', id)
+    .eq('status', 'published')
+    .single() as { data: Article | null, error: unknown }
+
+  if (error || !article) {
+    notFound()
+  }
+
+  // Obtener artículos relacionados
+  const { data: relatedArticles } = await supabase
+    .from('articles')
+    .select(`
+      id,
+      title,
+      excerpt,
+      image_url,
+      created_at,
+      categories (
+        id,
+        name,
+        color
+      )
+    `)
+    .eq('status', 'published')
+    .neq('id', id)
+    .order('created_at', { ascending: false })
+    .limit(4) as { data: Article[] | null }
+
+  // Función para formatear fecha
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getCategoryName = (categories: Category | Category[] | undefined) => {
+    if (Array.isArray(categories)) {
+      return categories[0]?.name || 'General'
+    }
+    return categories?.name || 'General'
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+        {/* Breadcrumb Navigation */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <nav className="flex items-center space-x-2 text-sm text-gray-600">
+              <Link href="/" className="hover:text-blue-600 transition-colors">
+                Inicio
+              </Link>
+              <span>›</span>
+              <Link href={`/categoria/${getCategorySlug(getCategoryName(article.categories))}`} className="hover:text-blue-600 transition-colors">
+                {getCategoryName(article.categories)}
+              </Link>
+              <span>›</span>
+              <span className="text-gray-900 font-medium">Artículo</span>
+            </nav>
+          </div>
+        </div>
+
+        {/* Article Content */}
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Article Header */}
+          <header className="mb-8">
+            <div className="flex items-center space-x-4 mb-6 text-sm">
+              <span className="bg-blue-600 text-white px-3 py-1 rounded-sm font-medium uppercase tracking-wide">
+                {getCategoryName(article.categories)}
+              </span>
+              <span className="text-gray-600">
+                {formatDate(article.created_at)}
+              </span>
+              <span className="text-gray-400">•</span>
+              <span className="text-gray-600">Por Redacción</span>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
+              {article.title}
+            </h1>
+            
+            <p className="text-xl text-gray-700 leading-relaxed mb-8 font-medium">
+              {article.excerpt}
+            </p>
+
+            {/* Social Share Buttons */}
+            <ShareButtons title={article.title} articleId={article.id} />
+          </header>
+
+          {/* Featured Image */}
+          <div className="mb-8 relative">
+            <div className="aspect-video relative image-container">
+              <OptimizedImage 
+                src={article.image_url || ''}
+                alt={article.title}
+                fill
+                className="article-image"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                priority
+              />
+            </div>
+          </div>
+
+          {/* Article Body */}
+          <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-8">
+            <div className="prose prose-lg max-w-none">
+              <div 
+                className="text-gray-800 leading-relaxed"
+                style={{ 
+                  fontSize: '18px', 
+                  lineHeight: '1.7',
+                  fontFamily: '"Georgia", "Times New Roman", serif'
+                }}
+                dangerouslySetInnerHTML={{ 
+                  __html: article.content
+                    .split('\n\n')
+                    .map(paragraph => `<p class="mb-6">${paragraph.trim()}</p>`)
+                    .join('')
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Article Footer */}
+          <footer className="mt-8 pt-8 border-t border-gray-200">
+            <div className="bg-blue-50 border border-blue-200 p-6 rounded-sm">
+              <h3 className="text-lg font-bold text-gray-900 mb-3">
+                Sobre esta publicación
+              </h3>
+              <p className="text-sm text-gray-700 mb-4">
+                Esta noticia fue publicada el {formatDate(article.created_at)} y forma parte de nuestra cobertura en la sección de {getCategoryName(article.categories)}.
+              </p>
+              <p className="text-xs text-gray-600">
+                Para mantenerte informado sobre las últimas noticias, visita nuestra{' '}
+                <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium">página principal</Link> o suscríbete a nuestro boletín informativo.
+              </p>
+            </div>
+          </footer>
+        </article>
+
+        {/* Related Articles */}
+        {relatedArticles && relatedArticles.length > 0 && (
+          <section className="bg-white border-t border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+                Noticias Relacionadas
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedArticles.map((relatedArticle) => (
+                  <article key={relatedArticle.id} className="border border-gray-200 hover:shadow-md transition-shadow">
+                    <div className="aspect-video bg-gray-200 border-b border-gray-200 relative">
+                      <OptimizedImage 
+                        src={relatedArticle.image_url || ''} 
+                        alt={relatedArticle.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3 text-xs text-gray-600 uppercase tracking-wide">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm">
+                          {getCategoryName(relatedArticle.categories)}
+                        </span>
+                        <span>{new Date(relatedArticle.created_at).toLocaleDateString('es-ES')}</span>
+                      </div>
+                      <h3 className="font-bold text-gray-900 mb-2 text-sm leading-tight">
+                        <a href={`/articulos/${relatedArticle.id}`} className="hover:text-blue-600 transition-colors">
+                          {relatedArticle.title}
+                        </a>
+                      </h3>
+                      <p className="text-xs text-gray-600 mb-3">
+                        {relatedArticle.excerpt?.substring(0, 80)}
+                        {relatedArticle.excerpt && relatedArticle.excerpt.length > 80 && '...'}
+                      </p>
+                      <a href={`/articulos/${relatedArticle.id}`} className="text-xs text-gray-900 font-medium hover:text-blue-600 transition-colors">
+                        Leer más →
+                      </a>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+    </div>
+  )
+}

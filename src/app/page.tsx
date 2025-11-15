@@ -1,65 +1,282 @@
-import Image from "next/image";
+﻿import { createClient } from '@/lib/supabase/server'
+import NewsletterForm from '@/components/NewsletterForm'
+import OptimizedImage from '@/components/OptimizedImage'
+import WeatherWidgetWrapper from '@/components/WeatherWidgetWrapper'
+import { getCategorySlug } from '@/utils/categoryUtils'
 
-export default function Home() {
+// Definir tipos para TypeScript
+interface Category {
+  id: string
+  name: string
+  color?: string
+}
+
+interface Article {
+  id: string
+  title: string
+  excerpt: string
+  content: string
+  image_url?: string
+  created_at: string
+  author_id?: string
+  categories?: Category | Category[]
+}
+
+export default async function HomePage() {
+  const supabase = await createClient()
+
+  // Obtener artículos publicados de la base de datos
+  const { data: articles } = await supabase
+    .from('articles')
+    .select(`
+      id,
+      title,
+      excerpt,
+      content,
+      image_url,
+      created_at,
+      author_id,
+      categories (
+        id,
+        name,
+        color
+      )
+    `)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(10) as { data: Article[] | null }
+
+  // Obtener artículo destacado (más reciente)
+  const featuredArticle = articles && articles.length > 0 ? articles[0] : null
+
+  // Función para formatear fecha
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) {
+      return 'Hace algunos minutos'
+    } else if (diffInHours < 24) {
+      return `Hace ${diffInHours} hora${diffInHours !== 1 ? 's' : ''}`
+    } else {
+      return date.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gray-50">
+        {/* Breaking News Banner - Responsive */}
+        {articles && articles.length > 0 && (
+          <div className="bg-red-600 text-white py-2 border-b border-red-700 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <span className="bg-white text-red-600 px-2 sm:px-3 py-1 text-xs font-bold rounded uppercase tracking-widest flex-shrink-0">
+                  Última Hora
+                </span>
+                <div className="flex-1 overflow-hidden">
+                  <div className="animate-scroll">
+                    <p className="text-xs sm:text-sm font-medium whitespace-nowrap">
+                      {articles.slice(0, 3).map((article, index) => (
+                        `${article.title}${index < 2 ? '  ' : ''}`
+                      )).join('')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content - Responsive Layout */}
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+          {articles && articles.length > 0 ? (
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              
+              {/* Main News Section */}
+              <div className="xl:col-span-3">
+                {/* Principal Article - Responsive */}
+                {featuredArticle && (
+                  <div className="mb-6 sm:mb-8">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 border-b-2 border-blue-600 pb-2">
+                      Noticia Principal
+                    </h2>
+                    
+                    <article className="group bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 cursor-pointer">
+                      <a href={`/articulos/${featuredArticle.id}`} className="block">
+                        <div className="aspect-video bg-gray-300 relative overflow-hidden image-container">
+                          <OptimizedImage 
+                            src={featuredArticle.image_url || ''} 
+                            alt={featuredArticle.title}
+                            fill
+                            className="article-image group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 66vw"
+                            priority
+                          />
+                          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                        </div>
+                      </a>
+                      <div className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 text-xs text-gray-600 uppercase tracking-wide">
+                          <span className="bg-blue-600 text-white px-2 py-1 rounded-sm w-fit group-hover:bg-blue-700 transition-colors">
+                            {Array.isArray(featuredArticle.categories) 
+                              ? featuredArticle.categories[0]?.name || 'General'
+                              : featuredArticle.categories?.name || 'General'
+                            }
+                          </span>
+                          <span>{formatDate(featuredArticle.created_at)}</span>
+                          <span>Por Redacción</span>
+                        </div>
+                        <a href={`/articulos/${featuredArticle.id}`} className="block">
+                          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight group-hover:text-blue-600 transition-colors duration-300">
+                            {featuredArticle.title}
+                          </h1>
+                          <p className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed group-hover:text-gray-800 transition-colors">
+                            {featuredArticle.excerpt}
+                          </p>
+                        </a>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 pt-4 border-t border-gray-200">
+                          <a href={`/articulos/${featuredArticle.id}`} className="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-2 text-sm font-medium hover:bg-blue-700 transition-colors text-center group-hover:bg-blue-700 flex items-center justify-center">
+                            LEER ARTÍCULO COMPLETO
+                            <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </a>
+                          <div className="flex flex-wrap items-center space-x-4 text-gray-500 text-sm">
+                            <span>Compartir:</span>
+                            <a href="#" className="hover:text-blue-600 transition-colors">Facebook</a>
+                            <a href="#" className="hover:text-blue-600 transition-colors">Twitter</a>
+                            <a href="#" className="hover:text-blue-600 transition-colors">WhatsApp</a>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                )}
+
+                {/* Secondary News Grid - Responsive */}
+                {articles && articles.length > 1 && (
+                  <div className="mb-6 sm:mb-8">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 border-b-2 border-blue-600 pb-2">
+                      Otras Noticias
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                      {articles.slice(1, 7).map((article) => (
+                        <article key={article.id} className="group bg-white border border-gray-200 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 rounded-sm overflow-hidden cursor-pointer transform hover:-translate-y-1">
+                          <a href={`/articulos/${article.id}`} className="block h-full">
+                            <div className="aspect-video bg-gray-200 relative overflow-hidden image-container">
+                              <OptimizedImage 
+                                src={article.image_url || ''} 
+                                alt={article.title}
+                                fill
+                                className="article-image group-hover:scale-105 transition-transform duration-300"
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              />
+                              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                            </div>
+                            <div className="p-3 sm:p-4">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3 text-xs text-gray-600 uppercase tracking-wide space-y-1 sm:space-y-0">
+                                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm w-fit group-hover:bg-blue-200 transition-colors">
+                                  {Array.isArray(article.categories) 
+                                    ? article.categories[0]?.name || 'General'
+                                    : article.categories?.name || 'General'
+                                  }
+                                </span>
+                                <span className="text-xs">{formatDate(article.created_at)}</span>
+                              </div>
+                              <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base leading-tight group-hover:text-blue-600 transition-colors duration-300">
+                                {article.title}
+                              </h3>
+                              <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-3 group-hover:text-gray-700 transition-colors">
+                                {article.excerpt?.substring(0, 120)}
+                                {article.excerpt && article.excerpt.length > 120 && '...'}
+                              </p>
+                              <span className="text-xs text-gray-900 font-medium group-hover:text-blue-600 transition-colors flex items-center">
+                                Leer más 
+                                <svg className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </span>
+                            </div>
+                          </a>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar - Responsive */}
+              <div className="xl:col-span-1 space-y-6 sm:space-y-8">
+                {/* Editor's Note */}
+                <div className="bg-white border-l-4 border-l-blue-600 border border-gray-200 p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 border-b border-blue-200 pb-2">
+                    Editorial
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-3 sm:mb-4 leading-relaxed">
+                    En tiempos de cambios constantes, el periodismo responsable se convierte en el pilar fundamental de una sociedad informada.
+                  </p>
+                  <p className="text-xs text-gray-600 font-medium">- Leyni Pérez, Directora Editorial</p>
+                </div>
+
+                {/* Weather Widget */}
+                <div>
+                  <WeatherWidgetWrapper />
+                </div>
+
+                {/* Categories with real counts */}
+                <div className="bg-white border border-gray-200 p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 border-b border-blue-200 pb-2">
+                    Secciones
+                  </h3>
+                  <div className="space-y-1 sm:space-y-2">
+                    {[
+                      'Última Hora', 'Política', 'Economía', 'Sociedad', 
+                      'Deportes', 'Cultura', 'Internacional', 'Opinión'
+                    ].map((categoryName) => {
+                      const count = articles?.filter(a => 
+                        Array.isArray(a.categories) 
+                          ? a.categories.some((cat: Category) => cat.name === categoryName)
+                          : a.categories?.name === categoryName
+                      ).length || 0
+                      
+                      return (
+                        <a
+                          key={categoryName}
+                          href={`/categoria/${getCategorySlug(categoryName)}`}
+                          className="flex items-center justify-between py-2 px-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-100 last:border-b-0 rounded-sm"
+                        >
+                          <span className="font-medium">{categoryName}</span>
+                          <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-sm">{count}</span>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Newsletter */}
+                <NewsletterForm variant="sidebar" />
+              </div>
+            </div>
+          ) : (
+            // Estado vacío cuando no hay artículos - Responsive
+            <div className="text-center py-12 sm:py-16">
+              <div className="text-4xl sm:text-6xl mb-4">📰</div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
+                Próximamente Contenido Exclusivo
+              </h2>
+              <p className="text-gray-600 mb-6 sm:mb-8 max-w-md mx-auto px-4">
+                Estamos preparando contenido de calidad para mantenerte informado. 
+                Regresa pronto para las últimas noticias.
+              </p>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
     </div>
-  );
+  )
 }

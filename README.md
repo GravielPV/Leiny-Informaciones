@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Las Informaciones con Leyni - Portal de Noticias
 
-## Getting Started
+Un portal de noticias moderno y profesional desarrollado con Next.js, TypeScript y Supabase.
 
-First, run the development server:
+## 🚀 Características
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Portal de Noticias Completo**: Sistema de gestión de artículos y categorías
+- **Dashboard Administrativo**: Panel de control profesional con estadísticas y widgets
+- **Autenticación**: Sistema de usuarios con roles (administrador, publicista)
+- **Widget del Clima**: Información meteorológica en tiempo real para RD
+- **Responsive Design**: Diseño adaptable para todos los dispositivos
+- **SEO Optimizado**: Metadata dinámica y estructura optimizada para buscadores
+- **Sistema de Imágenes**: Optimización automática y fallbacks inteligentes
+- **Linting y TypeScript**: Código limpio y tipado para mantenibilidad
+
+## 🛠️ Tecnologías
+
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Backend**: Supabase (Database, Auth, Storage)
+- **Icons**: Lucide React
+- **Forms**: React Hook Form + Zod
+- **Code Quality**: ESLint, TypeScript strict mode
+- **Deployment Ready**: Optimizado para producción
+
+## 🏗️ Estructura del Proyecto
+
+```
+src/
+├── app/                    # App Router de Next.js
+│   ├── admin/             # Panel administrativo
+│   ├── api/               # API routes
+│   ├── articulos/         # Páginas de artículos
+│   ├── auth/              # Autenticación
+│   ├── buscar/            # Sistema de búsqueda
+│   └── categoria/         # Páginas de categorías
+├── components/            # Componentes React
+│   ├── admin/            # Componentes del admin
+│   └── ui/               # Componentes base
+├── lib/                  # Utilidades y configuración
+└── utils/                # Funciones auxiliares
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Instalación y Desarrollo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clonar el repositorio**
+```bash
+git clone [repository-url]
+cd pagina-para-leiny
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Instalar dependencias**
+```bash
+npm install
+```
 
-## Learn More
+3. **Configurar variables de entorno**
+```bash
+# Copiar .env.example a .env.local y configurar
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Scripts disponibles**
+```bash
+# Desarrollo
+npm run dev                # Ejecutar en modo desarrollo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Producción
+npm run build             # Construir para producción
+npm run start             # Iniciar servidor de producción
+npm run prod:build        # Build completo con validaciones
+npm run prod:start        # Build y start completo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Calidad de código
+npm run lint              # Verificar código con ESLint
+npm run lint:fix          # Corregir errores de ESLint automáticamente
+npm run type-check        # Verificar tipos de TypeScript
+```
 
-## Deploy on Vercel
+5. **Configurar variables de entorno**
+Copia `.env.example` a `.env.local` y configura:
+```bash
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📱 URLs Principales
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Portal Público**: `/`
+- **Búsqueda**: `/buscar`
+- **Categorías**: `/categoria/[slug]`
+- **Artículos**: `/articulos/[id]`
+- **Admin Login**: `/auth/login`
+- **Dashboard**: `/admin`
+
+## 🔐 Sistema de Usuarios
+
+- **Administrador**: Acceso completo al sistema
+- **Publicista**: Crear y editar artículos (sin eliminar artículos publicados)
+
+## 📊 Características del Dashboard
+
+- **Estadísticas**: Contadores de artículos, usuarios y visualizaciones
+- **Widget del Clima**: Información meteorológica de Bajos de Haina, RD
+- **Gestión de Artículos**: CRUD completo con editor enriquecido
+- **Gestión de Usuarios**: Control de accesos y roles
+- **Categorías**: Administración de secciones de noticias
+
+## 🌐 Deployment
+
+El proyecto está optimizado para producción con:
+- Compresión automática de imágenes
+- Eliminación de console.logs en producción
+- Headers de seguridad configurados
+- Caché optimizado
+- Bundle size minimizado
+
+Listo para deployar en Vercel, Netlify o cualquier plataforma que soporte Next.js.
+
+## 📄 Licencia
+
+Proyecto desarrollado para Las Informaciones con Leyni © 2025

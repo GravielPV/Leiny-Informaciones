@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm run prod:build",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "functions": {
+    "pages/api/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "crons": []
+}

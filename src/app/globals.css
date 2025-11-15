@@ -1,26 +1,144 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Animación de ticker para noticias */
+@keyframes scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.animate-scroll {
+  animation: scroll 45s linear infinite;
+  transition: animation-play-state 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Estilos base personalizados */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: #ffffff;
+  color: #111827;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Componentes personalizados */
+.news-card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+.news-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+  border-color: #93c5fd;
+  transform: translateY(-2px);
+}
+
+.news-card-featured {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3b82f6;
+}
+
+.news-card-featured:hover {
+  box-shadow: 0 20px 35px -5px rgba(59, 130, 246, 0.25);
+  transform: translateY(-4px);
+}
+
+/* Utilidades responsivas */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Asegurar responsividad de imágenes */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Optimización para imágenes de artículos */
+.article-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  outline: none;
+  display: block;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none !important;
+}
+
+/* Contenedores de imágenes */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  background: #f3f4f6;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Eliminar bordes y líneas grises en imágenes */
+.image-container img {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-bottom: none !important;
+  border-top: none !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* Eliminar líneas en contenedores de artículos */
+.image-container::after,
+.image-container::before {
+  display: none;
+}
+
+/* Asegurar que las imágenes fill no tengan gaps */
+[data-nextjs-image] {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Mejorar transiciones de carga de imágenes */
+.image-loading {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Prevenir desbordamiento */
+.break-words-anywhere {
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
