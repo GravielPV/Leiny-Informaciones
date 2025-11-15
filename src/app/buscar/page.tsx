@@ -292,52 +292,52 @@ function SearchPageContent() {
         {!loading && results.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((article) => (
-              <article key={article.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-video relative bg-gray-200">
-                  <OptimizedImage
-                    src={article.image_url || ''}
-                    alt={article.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-3 text-xs text-gray-600 uppercase tracking-wide">
-                    <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm font-medium">
-                      {getCategoryName(article.categories)}
-                    </span>
-                    <span>{formatDate(article.created_at)}</span>
+              <article key={article.id} className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
+                <a href={`/articulos/${article.id}`} className="block h-full">
+                  <div className="aspect-video relative bg-gray-200 overflow-hidden">
+                    <OptimizedImage
+                      src={article.image_url || ''}
+                      alt={article.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                   </div>
                   
-                  <h3 className="font-bold text-gray-900 mb-3 text-lg leading-tight">
-                    <a 
-                      href={`/articulos/${article.id}`} 
-                      className="hover:text-blue-600 transition-colors"
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-3 text-xs text-gray-600 uppercase tracking-wide">
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm font-medium group-hover:bg-blue-200 transition-colors">
+                        {getCategoryName(article.categories)}
+                      </span>
+                      <span>{formatDate(article.created_at)}</span>
+                    </div>
+                    
+                    <h3 
+                      className="font-bold text-gray-900 mb-3 text-lg leading-tight group-hover:text-blue-600 transition-colors duration-300"
                       dangerouslySetInnerHTML={{
                         __html: highlightText(article.title, query)
                       }}
                     />
-                  </h3>
-                  
-                  <p 
-                    className="text-sm text-gray-600 mb-4 leading-relaxed"
-                    dangerouslySetInnerHTML={{
-                      __html: highlightText(
-                        article.excerpt?.substring(0, 120) + (article.excerpt && article.excerpt.length > 120 ? '...' : ''),
-                        query
-                      )
-                    }}
-                  />
-                  
-                  <a 
-                    href={`/articulos/${article.id}`} 
-                    className="text-sm text-blue-600 font-medium hover:text-blue-800 transition-colors"
-                  >
-                    Leer artículo completo →
-                  </a>
-                </div>
+                    
+                    <p 
+                      className="text-sm text-gray-600 mb-4 leading-relaxed group-hover:text-gray-700 transition-colors"
+                      dangerouslySetInnerHTML={{
+                        __html: highlightText(
+                          article.excerpt?.substring(0, 120) + (article.excerpt && article.excerpt.length > 120 ? '...' : ''),
+                          query
+                        )
+                      }}
+                    />
+                    
+                    <span className="text-sm text-blue-600 font-medium group-hover:text-blue-800 transition-colors inline-flex items-center">
+                      Leer artículo completo
+                      <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </a>
               </article>
             ))}
           </div>

@@ -22,10 +22,28 @@ interface Article {
   categories?: Category | Category[]
 }
 
-export default async function HomePage() {
-  const supabase = await createClient()
+// Constantes de paginación
+const ARTICLES_PER_PAGE = 12
 
-  // Obtener artículos publicados de la base de datos
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>
+}) {
+  const supabase = await createClient()
+  const params = await searchParams
+  const currentPage = parseInt(params.page || '1')
+  const offset = (currentPage - 1) * ARTICLES_PER_PAGE
+
+  // Obtener el total de artículos publicados
+  const { count: totalArticles } = await supabase
+    .from('articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'published')
+
+  const totalPages = Math.ceil((totalArticles || 0) / ARTICLES_PER_PAGE)
+
+  // Obtener artículos publicados de la base de datos con paginación
   const { data: articles } = await supabase
     .from('articles')
     .select(`
@@ -44,7 +62,7 @@ export default async function HomePage() {
     `)
     .eq('status', 'published')
     .order('created_at', { ascending: false })
-    .limit(10) as { data: Article[] | null }
+    .range(offset, offset + ARTICLES_PER_PAGE - 1) as { data: Article[] | null }
 
   // Obtener artículo destacado (más reciente)
   const featuredArticle = articles && articles.length > 0 ? articles[0] : null
@@ -82,7 +100,7 @@ export default async function HomePage() {
                   <div className="animate-scroll">
                     <p className="text-xs sm:text-sm font-medium whitespace-nowrap">
                       {articles.slice(0, 3).map((article, index) => (
-                        `${article.title}${index < 2 ? '  ' : ''}`
+                        `${article.title}${index < 2 ? '  —  ' : ''}`
                       )).join('')}
                     </p>
                   </div>
@@ -166,7 +184,7 @@ export default async function HomePage() {
                     </h2>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-                      {articles.slice(1, 7).map((article) => (
+                      {articles.slice(1).map((article) => (
                         <article key={article.id} className="group bg-white border border-gray-200 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 rounded-sm overflow-hidden cursor-pointer transform hover:-translate-y-1">
                           <a href={`/articulos/${article.id}`} className="block h-full">
                             <div className="aspect-video bg-gray-200 relative overflow-hidden image-container">
@@ -206,6 +224,93 @@ export default async function HomePage() {
                           </a>
                         </article>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Paginación */}
+                {totalPages > 1 && (
+                  <div className="mt-8 mb-6">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      {/* Info de página */}
+                      <div className="text-sm text-gray-600">
+                        Mostrando página <span className="font-bold text-gray-900">{currentPage}</span> de <span className="font-bold text-gray-900">{totalPages}</span>
+                      </div>
+
+                      {/* Controles de paginación */}
+                      <div className="flex items-center space-x-2">
+                        {/* Botón anterior */}
+                        {currentPage > 1 ? (
+                          <a
+                            href={`/?page=${currentPage - 1}`}
+                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors flex items-center space-x-1"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            <span className="hidden sm:inline">Anterior</span>
+                          </a>
+                        ) : (
+                          <span className="px-4 py-2 bg-gray-100 border border-gray-200 text-gray-400 rounded-sm cursor-not-allowed flex items-center space-x-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            <span className="hidden sm:inline">Anterior</span>
+                          </span>
+                        )}
+
+                        {/* Números de página */}
+                        <div className="flex items-center space-x-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            .filter(page => {
+                              // Mostrar siempre primera, última y páginas cercanas a la actual
+                              if (page === 1 || page === totalPages) return true
+                              if (page >= currentPage - 1 && page <= currentPage + 1) return true
+                              return false
+                            })
+                            .map((page, index, array) => (
+                              <div key={page} className="flex items-center">
+                                {/* Agregar puntos suspensivos si hay salto */}
+                                {index > 0 && page - array[index - 1] > 1 && (
+                                  <span className="px-2 text-gray-400">...</span>
+                                )}
+                                
+                                {page === currentPage ? (
+                                  <span className="px-4 py-2 bg-blue-600 text-white font-bold rounded-sm">
+                                    {page}
+                                  </span>
+                                ) : (
+                                  <a
+                                    href={`/?page=${page}`}
+                                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors"
+                                  >
+                                    {page}
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+
+                        {/* Botón siguiente */}
+                        {currentPage < totalPages ? (
+                          <a
+                            href={`/?page=${currentPage + 1}`}
+                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-sm hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors flex items-center space-x-1"
+                          >
+                            <span className="hidden sm:inline">Siguiente</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </a>
+                        ) : (
+                          <span className="px-4 py-2 bg-gray-100 border border-gray-200 text-gray-400 rounded-sm cursor-not-allowed flex items-center space-x-1">
+                            <span className="hidden sm:inline">Siguiente</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

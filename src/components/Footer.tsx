@@ -35,12 +35,12 @@ export default function Footer() {
           <div>
             <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-blue-400">Secciones</h4>
             <ul className="space-y-1 sm:space-y-2">
-              <li><a href="/ultimas-noticias" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Últimas Noticias</a></li>
-              <li><a href="/politica" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Política</a></li>
-              <li><a href="/economia" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Economía</a></li>
-              <li><a href="/sociedad" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Sociedad</a></li>
-              <li><a href="/deportes" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Deportes</a></li>
-              <li><a href="/opinion" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Opinión</a></li>
+              <li><a href="/categoria/ultima-hora" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Últimas Noticias</a></li>
+              <li><a href="/categoria/politica" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Política</a></li>
+              <li><a href="/categoria/economia" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Economía</a></li>
+              <li><a href="/categoria/sociedad" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Sociedad</a></li>
+              <li><a href="/categoria/deportes" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Deportes</a></li>
+              <li><a href="/categoria/opinion" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base">Opinión</a></li>
             </ul>
           </div>
 

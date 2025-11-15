@@ -94,7 +94,7 @@ export default function WeatherWidgetFrontend() {
       // Primero intentar con wttr.in que es más confiable y gratuito
       try {
         const response = await fetch(
-          'https://wttr.in/Santo_Domingo,Dominican_Republic?format=j1',
+          'https://wttr.in/Bajos_de_Haina,San_Cristobal,Dominican_Republic?format=j1',
           { 
             headers: {
               'User-Agent': 'Las-Informaciones-Weather-Widget/1.0'
@@ -130,7 +130,7 @@ export default function WeatherWidgetFrontend() {
           const currentCondition = translateCondition(current.weatherDesc[0].value)
           
           const realWeatherData: WeatherData = {
-            location: 'Santo Domingo, RD',
+            location: 'Bajos de Haina, San Cristóbal',
             temperature: Math.round(parseFloat(current.temp_C)),
             feelsLike: Math.round(parseFloat(current.FeelsLikeC)),
             condition: currentCondition,
