@@ -98,9 +98,13 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   
+  // Deshabilitar Turbopack en producción para compatibilidad con Netlify
+  turbo: false,
+  
   // Configuración experimental para mejor rendimiento
   experimental: {
-    optimizeCss: true
+    optimizeCss: true,
+    turbo: false
   }
 }
 
