@@ -5,22 +5,10 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_FLAGS = "--production=false"
-  NODE_ENV = "production"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[functions]
-  directory = "netlify/functions"
 
 # Configuración para Next.js
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-[context.production.environment]
-  NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 # Headers de seguridad
 [[headers]]
