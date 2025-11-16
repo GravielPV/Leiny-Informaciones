@@ -174,47 +174,46 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                 </h2>
                 
                 <article className="group bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 cursor-pointer">
-                  <a href={`/articulos/${filteredArticles[0].id}`} className="block">
-                    <div className="aspect-video bg-gray-300 relative overflow-hidden image-container">
-                      <OptimizedImage 
-                        src={filteredArticles[0].image_url || ''}
-                        alt={filteredArticles[0].title}
-                        fill
-                        className="article-image group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 66vw"
-                      />
-                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                    </div>
-                  </a>
-                  <div className="p-8">
-                    <div className="flex items-center space-x-4 mb-4 text-xs text-gray-600 uppercase tracking-wide">
-                      <span className="bg-blue-600 text-white px-3 py-1 rounded-sm font-medium group-hover:bg-blue-700 transition-colors">
-                        {getCategoryName(filteredArticles[0].categories)}
-                      </span>
-                      <span>{formatDate(filteredArticles[0].created_at)}</span>
-                      <span>•</span>
-                      <span>Por Redacción</span>
-                    </div>
-                    <a href={`/articulos/${filteredArticles[0].id}`} className="block">
-                      <h1 className="text-3xl font-bold text-gray-900 mb-4 leading-tight group-hover:text-blue-600 transition-colors duration-300">
-                        {filteredArticles[0].title}
-                      </h1>
-                      <p className="text-lg text-gray-700 mb-6 leading-relaxed group-hover:text-gray-800 transition-colors">
-                        {filteredArticles[0].excerpt}
-                      </p>
+                  <div className="md:flex md:h-[400px]">
+                    {/* Image Container - 40% width on desktop */}
+                    <a href={`/articulos/${filteredArticles[0].id}`} className="block md:w-2/5 md:flex-shrink-0">
+                      <div className="h-64 md:h-full bg-gray-300 relative overflow-hidden image-container">
+                        <OptimizedImage 
+                          src={filteredArticles[0].image_url || ''}
+                          alt={filteredArticles[0].title}
+                          fill
+                          className="article-image group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, 40vw"
+                        />
+                        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                      </div>
                     </a>
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                      <a href={`/articulos/${filteredArticles[0].id}`} className="bg-blue-600 text-white px-6 py-3 text-sm font-medium hover:bg-blue-700 transition-colors rounded-sm group-hover:bg-blue-700 flex items-center">
-                        LEER ARTÍCULO COMPLETO
-                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                    
+                    {/* Content Container - 60% width on desktop */}
+                    <div className="p-6 md:p-8 md:w-3/5 flex flex-col justify-center">
+                      <div className="flex items-center space-x-4 mb-4 text-xs text-gray-600 uppercase tracking-wide">
+                        <span className="bg-blue-600 text-white px-3 py-1 rounded-sm font-medium group-hover:bg-blue-700 transition-colors">
+                          {getCategoryName(filteredArticles[0].categories)}
+                        </span>
+                        <span>{formatDate(filteredArticles[0].created_at)}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="hidden sm:inline">Por Redacción</span>
+                      </div>
+                      <a href={`/articulos/${filteredArticles[0].id}`} className="block">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 md:mb-4 leading-tight group-hover:text-blue-600 transition-colors duration-300">
+                          {filteredArticles[0].title}
+                        </h1>
+                        <p className="text-base md:text-lg text-gray-700 mb-4 md:mb-6 leading-relaxed group-hover:text-gray-800 transition-colors line-clamp-3">
+                          {filteredArticles[0].excerpt}
+                        </p>
                       </a>
-                      <div className="flex space-x-4 text-gray-500 text-sm">
-                        <span>Compartir:</span>
-                        <a href="#" className="hover:text-blue-600 transition-colors">Facebook</a>
-                        <a href="#" className="hover:text-blue-600 transition-colors">Twitter</a>
-                        <a href="#" className="hover:text-blue-600 transition-colors">WhatsApp</a>
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <a href={`/articulos/${filteredArticles[0].id}`} className="bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-medium hover:bg-blue-700 transition-colors rounded-sm group-hover:bg-blue-700 flex items-center">
+                          LEER ARTÍCULO
+                          <svg className="w-3 h-3 md:w-4 md:h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
                       </div>
                     </div>
                   </div>
