@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { User } from '@/lib/types/database'
 
 interface ArticleActionsProps {
   articleId: string
@@ -14,46 +13,78 @@ interface ArticleActionsProps {
 export default function ArticleActions({ articleId, articleTitle, status }: ArticleActionsProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
-  const getCurrentUser = useCallback(async () => {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    
-    if (error || !user) return
+  useEffect(() => {
+    const getUserRole = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+          console.log('❌ No hay usuario autenticado')
+          setLoading(false)
+          return
+        }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
 
-    if (profile) {
-      setCurrentUser(profile)
+        if (error) {
+          console.error('❌ Error obteniendo perfil:', error)
+          setLoading(false)
+          return
+        }
+
+        console.log('✅ Rol de usuario cargado:', profile?.role)
+        setUserRole(profile?.role || null)
+        setLoading(false)
+      } catch (error) {
+        console.error('❌ Error en getUserRole:', error)
+        setLoading(false)
+      }
     }
+
+    getUserRole()
   }, [supabase])
 
-  useEffect(() => {
-    getCurrentUser()
-  }, [getCurrentUser])
-
   const canEdit = () => {
-    if (!currentUser) return false
-    // Admins pueden editar todo
-    if (currentUser.role === 'admin') return true
+    if (loading) return false
+    if (!userRole) return false
+    
+    // Admins pueden editar TODO
+    if (userRole === 'admin') return true
+    
     // Publicistas solo pueden editar borradores
-    if (currentUser.role === 'publicista' && status === 'draft') return true
+    if (userRole === 'publicista' && status === 'draft') return true
+    
     return false
   }
 
   const canDelete = () => {
-    if (!currentUser) return false
-    // Admins pueden eliminar todo
-    if (currentUser.role === 'admin') return true
+    if (loading) return false
+    if (!userRole) return false
+    
+    // Admins pueden eliminar TODO
+    if (userRole === 'admin') return true
+    
     // Publicistas solo pueden eliminar borradores
-    if (currentUser.role === 'publicista' && status === 'draft') return true
+    if (userRole === 'publicista' && status === 'draft') return true
+    
     return false
   }
+
+  console.log('🔄 Renderizando ArticleActions:', {
+    loading,
+    userRole,
+    status,
+    canEdit: canEdit(),
+    canDelete: canDelete()
+  })
 
   const handleDelete = async () => {
     setIsDeleting(true)
