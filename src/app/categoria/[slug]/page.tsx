@@ -132,9 +132,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Category Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Breadcrumb Navigation */}
-          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
+          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
             <Link href="/" className="hover:text-blue-600 transition-colors">
               Inicio
             </Link>
@@ -146,16 +146,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
           {/* Category Title */}
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
               {categoryName}
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base text-gray-600 max-w-2xl mx-auto">
               {filteredArticles.length > 0 
                 ? `Últimas noticias y actualizaciones en ${categoryName.toLowerCase()}`
                 : `Próximamente contenido en ${categoryName.toLowerCase()}`
               }
             </p>
-            <div className="mt-4 text-sm text-gray-500">
+            <div className="mt-3 text-sm text-gray-500">
               {filteredArticles.length} artículo{filteredArticles.length !== 1 ? 's' : ''} encontrado{filteredArticles.length !== 1 ? 's' : ''}
             </div>
           </div>
