@@ -39,20 +39,20 @@ export default function ArticleActions({ articleId, articleTitle, status }: Arti
 
   const canEdit = () => {
     if (!currentUser) return false
-    // Solo admins pueden editar artículos publicados
-    if (status === 'published' && currentUser.role === 'publicista') {
-      return false
-    }
-    return true
+    // Admins pueden editar todo
+    if (currentUser.role === 'admin') return true
+    // Publicistas solo pueden editar borradores
+    if (currentUser.role === 'publicista' && status === 'draft') return true
+    return false
   }
 
   const canDelete = () => {
     if (!currentUser) return false
-    // Solo admins pueden eliminar artículos publicados
-    if (status === 'published' && currentUser.role === 'publicista') {
-      return false
-    }
-    return true
+    // Admins pueden eliminar todo
+    if (currentUser.role === 'admin') return true
+    // Publicistas solo pueden eliminar borradores
+    if (currentUser.role === 'publicista' && status === 'draft') return true
+    return false
   }
 
   const handleDelete = async () => {
