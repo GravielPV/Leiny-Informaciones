@@ -214,8 +214,44 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     return categories?.name || 'General'
   }
 
+  // Structured Data (JSON-LD) para SEO
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: article.title,
+    description: article.excerpt?.replace(/<[^>]*>/g, '') || article.title,
+    image: article.image_url ? [article.image_url] : [],
+    datePublished: article.created_at,
+    dateModified: article.created_at,
+    author: {
+      '@type': 'Organization',
+      name: 'Las Informaciones con Leyni',
+      url: siteUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Las Informaciones con Leyni',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/logo2.jpg`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/articulos/${id}`,
+    },
+    articleSection: getCategoryName(article.categories),
+    inLanguage: 'es-ES',
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         {/* Breadcrumb Navigation */}
         <Breadcrumbs 
           items={[

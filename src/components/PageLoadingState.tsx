@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import HeroSkeleton from './HeroSkeleton'
 import ArticleSkeleton from './ArticleSkeleton'
 

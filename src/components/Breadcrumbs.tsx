@@ -11,8 +11,36 @@ interface BreadcrumbsProps {
 }
 
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
+  // Generar structured data para breadcrumbs
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
+  const breadcrumbStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Inicio',
+        item: baseUrl,
+      },
+      ...items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 2,
+        name: item.label,
+        ...(item.href && { item: `${baseUrl}${item.href}` }),
+      })),
+    ],
+  }
+
   return (
-    <nav aria-label="Breadcrumb" className="bg-white border-b border-gray-200 py-3">
+    <>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
+      />
+      
+      <nav aria-label="Breadcrumb" className="bg-white border-b border-gray-200 py-3">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ol className="flex items-center space-x-2 text-sm">
           {/* Home link */}
@@ -55,5 +83,6 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
         </ol>
       </div>
     </nav>
+    </>
   )
 }

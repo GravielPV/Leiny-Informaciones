@@ -8,6 +8,49 @@ import FadeInSection from '@/components/FadeInSection'
 import { getCategorySlug } from '@/utils/categoryUtils'
 import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
+import { Metadata } from 'next'
+
+// Metadata para homepage
+export const metadata: Metadata = {
+  title: 'Las Informaciones con Leyni - Noticias Actualizadas de República Dominicana',
+  description: 'Portal líder de noticias en República Dominicana. Mantente informado con las últimas noticias de política, economía, deportes, sociedad y más. Información confiable y actualizada las 24 horas.',
+  keywords: [
+    'noticias República Dominicana',
+    'noticias RD',
+    'última hora',
+    'política dominicana',
+    'economía',
+    'deportes',
+    'Santo Domingo',
+    'noticias actualizadas',
+    'periodismo',
+    'Las Informaciones con Leyni'
+  ],
+  openGraph: {
+    title: 'Las Informaciones con Leyni - Noticias de República Dominicana',
+    description: 'Portal líder de noticias. Información confiable y actualizada las 24 horas.',
+    type: 'website',
+    locale: 'es_DO',
+    siteName: 'Las Informaciones con Leyni',
+    images: [
+      {
+        url: '/logo2.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Las Informaciones con Leyni - Portal de Noticias',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Las Informaciones con Leyni',
+    description: 'Portal líder de noticias en República Dominicana',
+    images: ['/logo2.jpg'],
+  },
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com',
+  },
+}
 
 // Definir tipos para TypeScript
 interface Category {
@@ -91,8 +134,38 @@ export default async function HomePage({
     }
   }
 
+  // Structured Data para homepage
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
+  const websiteStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsMediaOrganization',
+    name: 'Las Informaciones con Leyni',
+    url: siteUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/logo2.jpg`,
+    },
+    description: 'Portal líder de noticias en República Dominicana',
+    sameAs: [
+      'https://www.facebook.com/lasinformacionesconleyni',
+      'https://twitter.com/lasinformacionesld',
+      'https://www.instagram.com/lasinformacionesconleyni',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Editorial Office',
+      email: 'contacto@lasinformacionesconleyni.com',
+    },
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }}
+        />
+        
         {/* Breaking News Banner - Responsive */}
         {articles && articles.length > 0 && (
           <div className="bg-red-600 text-white py-2 border-b border-red-700 overflow-hidden">
