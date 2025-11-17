@@ -95,9 +95,7 @@ export default function Footer() {
               © {new Date().getFullYear()} Las Informaciones con Leyni. Todos los derechos reservados.
             </div>
             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-gray-400">
-              <span className="text-center">Desarrollo web profesional</span>
-              <span className="hidden sm:inline">•</span>
-              <span className="text-center">Registro Nacional de Medios: DOM-2024-001</span>
+              <span className="text-center">Página creada por <a href="https://gravielpv.github.io/Portafolio--GabyDev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">GabyDev</a></span>
               <span className="hidden sm:inline">•</span>
               <a href="/admin" className="text-gray-600 hover:text-gray-400 transition-colors">
                 Admin

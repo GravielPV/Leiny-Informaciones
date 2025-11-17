@@ -421,7 +421,7 @@ export default async function HomePage({
                     </h3>
                     <div className="flex items-start space-x-3 mb-4">
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl font-bold text-blue-600">LP</span>
+                        <span className="text-2xl font-bold text-blue-600">LJ</span>
                       </div>
                       <div>
                         <p className="text-sm text-gray-700 leading-relaxed">
@@ -429,7 +429,7 @@ export default async function HomePage({
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 font-medium">- Leyni Pérez, Directora Editorial</p>
+                    <p className="text-xs text-gray-600 font-medium">- Leiny Jimenez, Directora Editorial</p>
                   </div>
                 </FadeInSection>
 
