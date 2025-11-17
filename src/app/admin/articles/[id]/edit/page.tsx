@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import ImageUrlInput from '@/components/admin/ImageUrlInput'
+import RichTextEditor from '@/components/admin/RichTextEditor'
 
 interface Article {
   id: string
@@ -218,16 +219,12 @@ export default function EditArticlePage() {
         />
 
         <div>
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Contenido *
           </label>
-          <textarea
-            id="content"
-            rows={15}
-            required
-            value={formData.content}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          <RichTextEditor
+            content={formData.content}
+            onChange={(value) => setFormData({ ...formData, content: value })}
             placeholder="Escribe el contenido completo del artículo"
           />
         </div>
