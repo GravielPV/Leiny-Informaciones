@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Obtener todos los artículos publicados
   const { data: articles } = await supabase
     .from('articles')
-    .select('id, created_at, updated_at')
+    .select('id, created_at')
     .eq('status', 'published')
     .order('created_at', { ascending: false })
 
@@ -54,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Rutas de artículos
   const articleRoutes: MetadataRoute.Sitemap = articles?.map((article) => ({
     url: `${baseUrl}/articulos/${article.id}`,
-    lastModified: new Date(article.updated_at || article.created_at),
+    lastModified: new Date(article.created_at),
     changeFrequency: 'daily' as const,
     priority: 0.9,
   })) || []
