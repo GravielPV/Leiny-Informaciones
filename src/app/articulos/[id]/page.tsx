@@ -6,6 +6,7 @@ import ShareButtons from '@/components/ShareButtons'
 import OptimizedImage from '@/components/OptimizedImage'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ViewCounter from '@/components/ViewCounter'
+import AdSenseAd from '@/components/AdSenseAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 
 interface Category {
@@ -306,6 +307,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </div>
           </div>
 
+          {/* In-Article Ad */}
+          <div className="my-8">
+            <AdSenseAd 
+              adSlot="1122334455" 
+              adFormat="horizontal"
+              className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
+            />
+          </div>
+
           {/* Article Body */}
           <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-8">
             <div className="prose prose-lg max-w-none">
@@ -341,6 +351,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </p>
             </div>
           </footer>
+
+          {/* Ad after article */}
+          <div className="mt-8">
+            <AdSenseAd 
+              adSlot="5544332211" 
+              adFormat="horizontal"
+              className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
+            />
+          </div>
         </article>
 
         {/* Related Articles */}

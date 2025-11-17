@@ -5,6 +5,7 @@ import WeatherWidgetWrapper from '@/components/WeatherWidgetWrapper'
 import ShareButtons from '@/components/ShareButtons'
 import MostReadWidget from '@/components/MostReadWidget'
 import FadeInSection from '@/components/FadeInSection'
+import AdSenseAd from '@/components/AdSenseAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
@@ -260,6 +261,17 @@ export default async function HomePage({
                   </FadeInSection>
                 )}
 
+                {/* Ad after featured article */}
+                <FadeInSection direction="up" delay={100}>
+                  <div className="mb-6 sm:mb-8">
+                    <AdSenseAd 
+                      adSlot="1234567890" 
+                      adFormat="horizontal"
+                      className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
+                    />
+                  </div>
+                </FadeInSection>
+
                 {/* Secondary News Grid - Responsive */}
                 {articles && articles.length > 1 && (
                   <div className="mb-6 sm:mb-8">
@@ -430,6 +442,17 @@ export default async function HomePage({
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 font-medium">- Leiny Jimenez, Directora Editorial</p>
+                  </div>
+                </FadeInSection>
+
+                {/* Sidebar Ad */}
+                <FadeInSection direction="left" delay={150}>
+                  <div>
+                    <AdSenseAd 
+                      adSlot="9876543210" 
+                      adFormat="vertical"
+                      className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
+                    />
                   </div>
                 </FadeInSection>
 
