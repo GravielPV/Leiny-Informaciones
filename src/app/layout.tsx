@@ -86,6 +86,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" data-scroll-behavior="smooth">
+      <head>
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7405911291221724"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning={true}>
         <GlobalErrorHandler />
         <PageTransition />
