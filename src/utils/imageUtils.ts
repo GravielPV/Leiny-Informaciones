@@ -86,9 +86,8 @@ const isValidImageUrl = (url: string): boolean => {
  * @returns URL válida o URL de fallback
  */
 export function getValidImageUrl(url: string | null | undefined): string {
-  // Si no hay URL, retornar imagen por defecto
+  // Si no hay URL, retornar imagen por defecto sin log
   if (!url || url.trim() === '') {
-    console.log('No URL provided, using default image')
     return DEFAULT_IMAGE_URL
   }
 

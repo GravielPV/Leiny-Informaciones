@@ -25,13 +25,8 @@ const OptimizedImage = ({
   priority = false,
   sizes 
 }: OptimizedImageProps) => {
-  // Doble validación: primero verificar si es una URL problemática de Google
-  const safeSrc = src && (src.includes('share.google') || src.includes('Xw8NSUkRYIbPyn0pP')) 
-    ? DEFAULT_IMAGE_URL 
-    : src
-  
   // Validar y obtener URL segura inmediatamente
-  const validatedSrc = getValidImageUrl(safeSrc)
+  const validatedSrc = src ? getValidImageUrl(src) : DEFAULT_IMAGE_URL
   const [imgSrc, setImgSrc] = useState(validatedSrc)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
@@ -41,14 +36,8 @@ const OptimizedImage = ({
 
   const handleError = () => {
     if (!hasError) {
-      // Solo logear errores que no sean de URLs problemáticas conocidas
-      const shouldLog = !imgSrc.includes('share.google') && 
-                       !imgSrc.includes('invalid') && 
-                       !imgSrc.includes('example.com')
-      
-      if (shouldLog) {
-        console.warn(`Image failed to load: ${imgSrc}. Using fallback.`)
-      }
+      setHasError(true)
+      setImgSrc(fallbackImage)
       
       setHasError(true)
       setImgSrc(fallbackImage)

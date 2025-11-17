@@ -24,7 +24,11 @@ export default function GlobalErrorHandler() {
         '[ECOMMERCE]',
         'Extension context invalidated',
         'Could not establish connection',
-        'The message port closed before a response was received'
+        'The message port closed before a response was received',
+        'Invalid Refresh Token',
+        'Refresh Token Not Found',
+        'AuthApiError',
+        'No URL provided, using default image'
       ]
       
       // Solo mostrar el error si no está en la lista de suprimidos
@@ -41,11 +45,13 @@ export default function GlobalErrorHandler() {
     const handleUnhandledErrors = (event: ErrorEvent) => {
       const message = event.message || ''
       
-      // Suprimir errores de extensiones del navegador
+      // Suprimir errores de extensiones del navegador y Supabase
       if (
         message.includes('Extension context invalidated') ||
         message.includes('A listener indicated an asynchronous response') ||
-        message.includes('[ECOMMERCE]')
+        message.includes('[ECOMMERCE]') ||
+        message.includes('Invalid Refresh Token') ||
+        message.includes('AuthApiError')
       ) {
         event.preventDefault()
         return false
@@ -59,7 +65,10 @@ export default function GlobalErrorHandler() {
       if (
         message.includes('Extension context invalidated') ||
         message.includes('A listener indicated an asynchronous response') ||
-        message.includes('[ECOMMERCE]')
+        message.includes('[ECOMMERCE]') ||
+        message.includes('Invalid Refresh Token') ||
+        message.includes('AuthApiError') ||
+        message.includes('Refresh Token Not Found')
       ) {
         event.preventDefault()
         return false

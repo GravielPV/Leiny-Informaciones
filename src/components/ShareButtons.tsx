@@ -1,11 +1,14 @@
 'use client'
 
+import { Facebook, Twitter, Share2 } from 'lucide-react'
+
 interface ShareButtonsProps {
   title: string
   articleId: string
+  compact?: boolean
 }
 
-const ShareButtons = ({ title, articleId }: ShareButtonsProps) => {
+const ShareButtons = ({ title, articleId, compact = false }: ShareButtonsProps) => {
   
   const handleShare = (platform: 'facebook' | 'twitter' | 'whatsapp') => {
     if (typeof window === 'undefined') return
@@ -26,36 +29,68 @@ const ShareButtons = ({ title, articleId }: ShareButtonsProps) => {
     }
 
     if (shareUrl) {
-      window.open(shareUrl, '_blank', 'noopener,noreferrer')
+      window.open(shareUrl, '_blank', 'width=600,height=400,noopener,noreferrer')
     }
   }
 
-  return (
-    <div className="flex items-center justify-between py-4 border-t border-b border-gray-200">
-      <div className="flex space-x-4">
-        <span className="text-gray-600 font-medium">Compartir:</span>
-        <button 
+  if (compact) {
+    return (
+      <div className="flex items-center space-x-2">
+        <button
           onClick={() => handleShare('facebook')}
-          className="text-blue-600 hover:text-blue-800 transition-colors font-medium cursor-pointer"
+          className="text-gray-500 hover:text-blue-600 transition-colors p-1"
+          aria-label="Compartir en Facebook"
+          title="Compartir en Facebook"
         >
-          Facebook
+          <Facebook className="w-4 h-4" />
         </button>
-        <button 
+        <button
           onClick={() => handleShare('twitter')}
-          className="text-blue-400 hover:text-blue-600 transition-colors font-medium cursor-pointer"
+          className="text-gray-500 hover:text-blue-400 transition-colors p-1"
+          aria-label="Compartir en Twitter"
+          title="Compartir en Twitter"
         >
-          Twitter
+          <Twitter className="w-4 h-4" />
         </button>
-        <button 
+        <button
           onClick={() => handleShare('whatsapp')}
-          className="text-green-600 hover:text-green-800 transition-colors font-medium cursor-pointer"
+          className="text-gray-500 hover:text-green-600 transition-colors p-1"
+          aria-label="Compartir en WhatsApp"
+          title="Compartir en WhatsApp"
         >
-          WhatsApp
+          <Share2 className="w-4 h-4" />
         </button>
       </div>
-      <div className="text-sm text-gray-500">
-        <span>ID: {articleId.substring(0, 8)}</span>
-      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-wrap items-center space-x-4 text-gray-500 text-sm">
+      <span className="font-medium">Compartir:</span>
+      <button 
+        onClick={() => handleShare('facebook')}
+        className="hover:text-blue-600 transition-colors flex items-center space-x-1 font-medium"
+        aria-label="Compartir en Facebook"
+      >
+        <Facebook className="w-4 h-4" />
+        <span>Facebook</span>
+      </button>
+      <button 
+        onClick={() => handleShare('twitter')}
+        className="hover:text-blue-400 transition-colors flex items-center space-x-1 font-medium"
+        aria-label="Compartir en Twitter"
+      >
+        <Twitter className="w-4 h-4" />
+        <span>Twitter</span>
+      </button>
+      <button 
+        onClick={() => handleShare('whatsapp')}
+        className="hover:text-green-600 transition-colors flex items-center space-x-1 font-medium"
+        aria-label="Compartir en WhatsApp"
+      >
+        <Share2 className="w-4 h-4" />
+        <span>WhatsApp</span>
+      </button>
     </div>
   )
 }

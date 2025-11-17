@@ -75,17 +75,6 @@ function SidebarContent({ user }: { user: { email?: string; role?: string | null
             <Play className="h-5 w-5 mr-3 text-gray-400 group-hover:text-blue-500" />
             Videos en Vivo
           </Link>
-
-          {/* Separador */}
-          <div className="my-4 border-t border-gray-200"></div>
-
-          <Link 
-            href="/admin/help/images"
-            className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors"
-          >
-            <HelpCircle className="h-5 w-5 mr-3 text-gray-400 group-hover:text-blue-500" />
-            Ayuda - Imágenes
-          </Link>
         </div>
       </nav>
 

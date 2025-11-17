@@ -108,7 +108,12 @@ export default async function AdminDashboard() {
   const user = await getUserWithRole()
   const supabase = await createClient()
   
-  // Obtener estadísticas
+  // Fechas para calcular cambios
+  const now = new Date()
+  const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  
+  // Obtener estadísticas totales
   const { count: totalArticles } = await supabase
     .from('articles')
     .select('*', { count: 'exact', head: true })
@@ -123,12 +128,41 @@ export default async function AdminDashboard() {
     .select('*', { count: 'exact', head: true })
     .eq('status', 'draft')
 
+  // Artículos del mes pasado para comparar
+  const { count: articlesLastMonth } = await supabase
+    .from('articles')
+    .select('*', { count: 'exact', head: true })
+    .lt('created_at', oneMonthAgo.toISOString())
+
+  // Artículos de la semana pasada para comparar
+  const { count: publishedLastWeek } = await supabase
+    .from('articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'published')
+    .lt('created_at', oneWeekAgo.toISOString())
+
+  // Calcular porcentajes de cambio
+  const totalChange = articlesLastMonth && articlesLastMonth > 0 
+    ? Math.round(((totalArticles || 0) - articlesLastMonth) / articlesLastMonth * 100)
+    : 0
+
+  const publishedChange = publishedLastWeek && publishedLastWeek > 0
+    ? Math.round(((publishedArticles || 0) - publishedLastWeek) / publishedLastWeek * 100)
+    : 0
+
   // Artículos recientes
   const { data: recentArticles } = await supabase
     .from('articles')
     .select('id, title, created_at, status')
     .order('created_at', { ascending: false })
     .limit(5)
+  
+  // Simular vistas del mes (esto debería venir de una tabla de analytics real)
+  // Por ahora usamos un número basado en artículos publicados
+  const monthlyViews = (publishedArticles || 0) * 150 // Promedio de 150 vistas por artículo
+  const formattedViews = monthlyViews >= 1000 
+    ? `${(monthlyViews / 1000).toFixed(1)}k` 
+    : monthlyViews.toString()
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -161,8 +195,8 @@ export default async function AdminDashboard() {
           title="Total de Artículos"
           value={totalArticles || 0}
           icon={FileText}
-          change="+12% este mes"
-          changeType="positive"
+          change={totalChange !== 0 ? `${totalChange > 0 ? '+' : ''}${totalChange}% este mes` : 'Sin cambios este mes'}
+          changeType={totalChange > 0 ? 'positive' : totalChange < 0 ? 'negative' : 'neutral'}
           color="blue"
         />
         
@@ -170,8 +204,8 @@ export default async function AdminDashboard() {
           title="Artículos Publicados"
           value={publishedArticles || 0}
           icon={Eye}
-          change="+8% esta semana"
-          changeType="positive"
+          change={publishedChange !== 0 ? `${publishedChange > 0 ? '+' : ''}${publishedChange}% esta semana` : 'Sin cambios esta semana'}
+          changeType={publishedChange > 0 ? 'positive' : publishedChange < 0 ? 'negative' : 'neutral'}
           color="green"
         />
         
@@ -179,16 +213,16 @@ export default async function AdminDashboard() {
           title="Borradores"
           value={draftArticles || 0}
           icon={Clock}
-          change="3 pendientes"
+          change={`${draftArticles || 0} pendiente${(draftArticles || 0) !== 1 ? 's' : ''}`}
           changeType="neutral"
           color="yellow"
         />
         
         <StatCard
           title="Vistas del Mes"
-          value="12.5k"
+          value={formattedViews}
           icon={TrendingUp}
-          change="+23% vs mes anterior"
+          change={`~${Math.round((publishedArticles || 0) * 150)} vistas estimadas`}
           changeType="positive"
           color="purple"
         />

@@ -2,7 +2,10 @@
 import NewsletterForm from '@/components/NewsletterForm'
 import OptimizedImage from '@/components/OptimizedImage'
 import WeatherWidgetWrapper from '@/components/WeatherWidgetWrapper'
+import ShareButtons from '@/components/ShareButtons'
 import { getCategorySlug } from '@/utils/categoryUtils'
+import { calculateReadingTime, isNewArticle } from '@/utils/articleUtils'
+import { Clock, TrendingUp, Flame } from 'lucide-react'
 
 // Definir tipos para TypeScript
 interface Category {
@@ -140,14 +143,30 @@ export default async function HomePage({
                       </a>
                       <div className="p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 text-xs text-gray-600 uppercase tracking-wide">
-                          <span className="bg-blue-600 text-white px-2 py-1 rounded-sm w-fit group-hover:bg-blue-700 transition-colors">
-                            {Array.isArray(featuredArticle.categories) 
-                              ? featuredArticle.categories[0]?.name || 'General'
-                              : featuredArticle.categories?.name || 'General'
-                            }
-                          </span>
-                          <span>{formatDate(featuredArticle.created_at)}</span>
-                          <span>Por Redacción</span>
+                          <div className="flex items-center space-x-2">
+                            <span className="bg-blue-600 text-white px-2 py-1 rounded-sm w-fit group-hover:bg-blue-700 transition-colors">
+                              {Array.isArray(featuredArticle.categories) 
+                                ? featuredArticle.categories[0]?.name || 'General'
+                                : featuredArticle.categories?.name || 'General'
+                              }
+                            </span>
+                            {isNewArticle(featuredArticle.created_at) && (
+                              <span className="bg-red-500 text-white px-2 py-1 rounded-sm font-bold flex items-center space-x-1 animate-pulse">
+                                <Flame className="w-3 h-3" />
+                                <span>NUEVO</span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-3 text-gray-600">
+                            <span>{formatDate(featuredArticle.created_at)}</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="hidden sm:inline flex items-center space-x-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{calculateReadingTime(featuredArticle.content)} min de lectura</span>
+                            </span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="hidden sm:inline">Por Redacción</span>
+                          </div>
                         </div>
                         <a href={`/articulos/${featuredArticle.id}`} className="block">
                           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight group-hover:text-blue-600 transition-colors duration-300">
@@ -164,12 +183,7 @@ export default async function HomePage({
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                           </a>
-                          <div className="flex flex-wrap items-center space-x-4 text-gray-500 text-sm">
-                            <span>Compartir:</span>
-                            <a href="#" className="hover:text-blue-600 transition-colors">Facebook</a>
-                            <a href="#" className="hover:text-blue-600 transition-colors">Twitter</a>
-                            <a href="#" className="hover:text-blue-600 transition-colors">WhatsApp</a>
-                          </div>
+                          <ShareButtons articleId={featuredArticle.id} title={featuredArticle.title} />
                         </div>
                       </div>
                     </article>
@@ -199,13 +213,27 @@ export default async function HomePage({
                             </div>
                             <div className="p-3 sm:p-4">
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3 text-xs text-gray-600 uppercase tracking-wide space-y-1 sm:space-y-0">
-                                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm w-fit group-hover:bg-blue-200 transition-colors">
-                                  {Array.isArray(article.categories) 
-                                    ? article.categories[0]?.name || 'General'
-                                    : article.categories?.name || 'General'
-                                  }
-                                </span>
-                                <span className="text-xs">{formatDate(article.created_at)}</span>
+                                <div className="flex items-center space-x-2">
+                                  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm w-fit group-hover:bg-blue-200 transition-colors">
+                                    {Array.isArray(article.categories) 
+                                      ? article.categories[0]?.name || 'General'
+                                      : article.categories?.name || 'General'
+                                    }
+                                  </span>
+                                  {isNewArticle(article.created_at) && (
+                                    <span className="bg-green-500 text-white px-1.5 py-0.5 rounded-sm text-xs font-bold">
+                                      NUEVO
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-xs">{formatDate(article.created_at)}</span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span className="hidden sm:inline flex items-center space-x-1">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{calculateReadingTime(article.content)} min</span>
+                                  </span>
+                                </div>
                               </div>
                               <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base leading-tight group-hover:text-blue-600 transition-colors duration-300">
                                 {article.title}
