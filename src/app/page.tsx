@@ -3,9 +3,11 @@ import NewsletterForm from '@/components/NewsletterForm'
 import OptimizedImage from '@/components/OptimizedImage'
 import WeatherWidgetWrapper from '@/components/WeatherWidgetWrapper'
 import ShareButtons from '@/components/ShareButtons'
+import MostReadWidget from '@/components/MostReadWidget'
+import FadeInSection from '@/components/FadeInSection'
 import { getCategorySlug } from '@/utils/categoryUtils'
-import { calculateReadingTime, isNewArticle } from '@/utils/articleUtils'
-import { Clock, TrendingUp, Flame } from 'lucide-react'
+import { isNewArticle } from '@/utils/articleUtils'
+import { TrendingUp, Flame } from 'lucide-react'
 
 // Definir tipos para TypeScript
 interface Category {
@@ -122,10 +124,11 @@ export default async function HomePage({
               <div className="xl:col-span-3">
                 {/* Principal Article - Responsive */}
                 {featuredArticle && (
-                  <div className="mb-6 sm:mb-8">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 border-b-2 border-blue-600 pb-2">
-                      Noticia Principal
-                    </h2>
+                  <FadeInSection direction="up">
+                    <div className="mb-6 sm:mb-8">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 border-b-2 border-blue-600 pb-2">
+                        Noticia Principal
+                      </h2>
                     
                     <article className="group bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 cursor-pointer">
                       <a href={`/articulos/${featuredArticle.id}`} className="block">
@@ -159,13 +162,6 @@ export default async function HomePage({
                           </div>
                           <div className="flex items-center space-x-3 text-gray-600">
                             <span>{formatDate(featuredArticle.created_at)}</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="hidden sm:inline flex items-center space-x-1">
-                              <Clock className="w-3 h-3" />
-                              <span>{calculateReadingTime(featuredArticle.content)} min de lectura</span>
-                            </span>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="hidden sm:inline">Por Redacción</span>
                           </div>
                         </div>
                         <a href={`/articulos/${featuredArticle.id}`} className="block">
@@ -188,6 +184,7 @@ export default async function HomePage({
                       </div>
                     </article>
                   </div>
+                  </FadeInSection>
                 )}
 
                 {/* Secondary News Grid - Responsive */}
@@ -198,8 +195,9 @@ export default async function HomePage({
                     </h2>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-                      {articles.slice(1).map((article) => (
-                        <article key={article.id} className="group bg-white border border-gray-200 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 rounded-sm overflow-hidden cursor-pointer transform hover:-translate-y-1">
+                      {articles.slice(1).map((article, index) => (
+                        <FadeInSection key={article.id} direction="up" delay={Math.min(index * 100, 400)}>
+                          <article className="group bg-white border border-gray-200 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-300 transition-all duration-300 rounded-sm overflow-hidden cursor-pointer transform hover:-translate-y-1">
                           <a href={`/articulos/${article.id}`} className="block h-full">
                             <div className="aspect-video bg-gray-200 relative overflow-hidden image-container">
                               <OptimizedImage 
@@ -228,11 +226,6 @@ export default async function HomePage({
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <span className="text-xs">{formatDate(article.created_at)}</span>
-                                  <span className="hidden sm:inline">•</span>
-                                  <span className="hidden sm:inline flex items-center space-x-1">
-                                    <Clock className="w-3 h-3" />
-                                    <span>{calculateReadingTime(article.content)} min</span>
-                                  </span>
                                 </div>
                               </div>
                               <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base leading-tight group-hover:text-blue-600 transition-colors duration-300">
@@ -251,6 +244,7 @@ export default async function HomePage({
                             </div>
                           </a>
                         </article>
+                        </FadeInSection>
                       ))}
                     </div>
                   </div>
@@ -347,53 +341,73 @@ export default async function HomePage({
               {/* Sidebar - Responsive */}
               <div className="xl:col-span-1 space-y-6 sm:space-y-8">
                 {/* Editor's Note */}
-                <div className="bg-white border-l-4 border-l-blue-600 border border-gray-200 p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 border-b border-blue-200 pb-2">
-                    Editorial
-                  </h3>
-                  <p className="text-sm text-gray-700 mb-3 sm:mb-4 leading-relaxed">
-                    En tiempos de cambios constantes, el periodismo responsable se convierte en el pilar fundamental de una sociedad informada.
-                  </p>
-                  <p className="text-xs text-gray-600 font-medium">- Leyni Pérez, Directora Editorial</p>
-                </div>
+                <FadeInSection direction="left" delay={100}>
+                  <div className="bg-white border-l-4 border-l-blue-600 border border-gray-200 p-4 sm:p-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 border-b border-blue-200 pb-2">
+                      Editorial
+                    </h3>
+                    <div className="flex items-start space-x-3 mb-4">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
+                        <span className="text-2xl font-bold text-blue-600">LP</span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          En tiempos de cambios constantes, el periodismo responsable se convierte en el pilar fundamental de una sociedad informada.
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 font-medium">- Leyni Pérez, Directora Editorial</p>
+                  </div>
+                </FadeInSection>
 
                 {/* Weather Widget */}
-                <div>
-                  <WeatherWidgetWrapper />
-                </div>
+                <FadeInSection direction="left" delay={200}>
+                  <div>
+                    <WeatherWidgetWrapper />
+                  </div>
+                </FadeInSection>
+
+                {/* Most Read Articles */}
+                <FadeInSection direction="left" delay={300}>
+                  <MostReadWidget articles={articles.slice(0, 5)} />
+                </FadeInSection>
 
                 {/* Categories with real counts */}
-                <div className="bg-white border border-gray-200 p-4 sm:p-6">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 border-b border-blue-200 pb-2">
-                    Secciones
-                  </h3>
-                  <div className="space-y-1 sm:space-y-2">
-                    {[
-                      'Última Hora', 'Política', 'Economía', 'Sociedad', 
-                      'Deportes', 'Cultura', 'Internacional', 'Opinión'
-                    ].map((categoryName) => {
-                      const count = articles?.filter(a => 
-                        Array.isArray(a.categories) 
-                          ? a.categories.some((cat: Category) => cat.name === categoryName)
-                          : a.categories?.name === categoryName
-                      ).length || 0
-                      
-                      return (
-                        <a
-                          key={categoryName}
-                          href={`/categoria/${getCategorySlug(categoryName)}`}
-                          className="flex items-center justify-between py-2 px-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-100 last:border-b-0 rounded-sm"
-                        >
-                          <span className="font-medium">{categoryName}</span>
-                          <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-sm">{count}</span>
-                        </a>
-                      )
-                    })}
+                <FadeInSection direction="left" delay={400}>
+                  <div className="bg-white border border-gray-200 p-4 sm:p-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 border-b border-blue-200 pb-2">
+                      Secciones
+                    </h3>
+                    <div className="space-y-1 sm:space-y-2">
+                      {[
+                        'Última Hora', 'Política', 'Economía', 'Sociedad', 
+                        'Deportes', 'Cultura', 'Internacional', 'Opinión'
+                      ].map((categoryName) => {
+                        const count = articles?.filter(a => 
+                          Array.isArray(a.categories) 
+                            ? a.categories.some((cat: Category) => cat.name === categoryName)
+                            : a.categories?.name === categoryName
+                        ).length || 0
+                        
+                        return (
+                          <a
+                            key={categoryName}
+                            href={`/categoria/${getCategorySlug(categoryName)}`}
+                            className="flex items-center justify-between py-2 px-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-b border-gray-100 last:border-b-0 rounded-sm"
+                          >
+                            <span className="font-medium">{categoryName}</span>
+                            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-sm">{count}</span>
+                          </a>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                </FadeInSection>
 
                 {/* Newsletter */}
-                <NewsletterForm variant="sidebar" />
+                <FadeInSection direction="left" delay={100}>
+                  <NewsletterForm variant="sidebar" />
+                </FadeInSection>
               </div>
             </div>
           ) : (

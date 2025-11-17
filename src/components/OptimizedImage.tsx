@@ -38,9 +38,6 @@ const OptimizedImage = ({
     if (!hasError) {
       setHasError(true)
       setImgSrc(fallbackImage)
-      
-      setHasError(true)
-      setImgSrc(fallbackImage)
     }
   }
 
@@ -64,17 +61,24 @@ const OptimizedImage = ({
   if (fill) {
     // Para imágenes con fill, devolver directamente el elemento Image
     return (
-      <Image
-        src={imageSrc}
-        alt={alt}
-        fill
-        className={`object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
-        onError={handleError}
-        onLoad={handleLoad}
-        priority={priority}
-        loading={priority ? 'eager' : 'lazy'}
-        sizes={sizes}
-      />
+      <>
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        )}
+        <Image
+          src={imageSrc}
+          alt={alt}
+          fill
+          className={`object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+          onError={handleError}
+          onLoad={handleLoad}
+          priority={priority}
+          loading={priority ? 'eager' : 'lazy'}
+          sizes={sizes}
+          placeholder="blur"
+          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg=="
+        />
+      </>
     )
   }
 
@@ -91,6 +95,8 @@ const OptimizedImage = ({
         priority={priority}
         loading={priority ? 'eager' : 'lazy'}
         sizes={sizes}
+        placeholder="blur"
+        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg=="
       />
       {isLoading && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse rounded" style={{ width, height }} />

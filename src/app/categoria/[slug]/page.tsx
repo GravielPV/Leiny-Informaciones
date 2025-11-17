@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import OptimizedImage from '@/components/OptimizedImage'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import Link from 'next/link'
 import { slugCategoryMap } from '@/utils/categoryUtils'
 
@@ -130,20 +131,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumbs 
+        items={[
+          {
+            label: categoryName
+          }
+        ]}
+      />
+
       {/* Category Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Breadcrumb Navigation */}
-          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-            <Link href="/" className="hover:text-blue-600 transition-colors">
-              Inicio
-            </Link>
-            <span>›</span>
-            <span className="text-gray-900 font-medium">
-              {categoryName}
-            </span>
-          </nav>
-
           {/* Category Title */}
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">

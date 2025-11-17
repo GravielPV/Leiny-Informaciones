@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import ShareButtons from '@/components/ShareButtons'
 import OptimizedImage from '@/components/OptimizedImage'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import ViewCounter from '@/components/ViewCounter'
 import { getCategorySlug } from '@/utils/categoryUtils'
 
 interface Category {
@@ -191,14 +193,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   // Función para formatear fecha
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('es-ES', {
+    const dateFormatted = date.toLocaleDateString('es-ES', {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     })
+    const timeFormatted = date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+    return `${dateFormatted}, ${timeFormatted}`
   }
 
   const getCategoryName = (categories: Category | Category[] | undefined) => {
@@ -211,27 +217,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb Navigation */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <nav className="flex items-center space-x-2 text-sm text-gray-600">
-              <Link href="/" className="hover:text-blue-600 transition-colors">
-                Inicio
-              </Link>
-              <span>›</span>
-              <Link href={`/categoria/${getCategorySlug(getCategoryName(article.categories))}`} className="hover:text-blue-600 transition-colors">
-                {getCategoryName(article.categories)}
-              </Link>
-              <span>›</span>
-              <span className="text-gray-900 font-medium">Artículo</span>
-            </nav>
-          </div>
-        </div>
+        <Breadcrumbs 
+          items={[
+            {
+              label: getCategoryName(article.categories),
+              href: `/categoria/${getCategorySlug(getCategoryName(article.categories))}`
+            },
+            {
+              label: article.title
+            }
+          ]}
+        />
 
         {/* Article Content */}
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Article Header */}
           <header className="mb-8">
-            <div className="flex items-center space-x-4 mb-6 text-sm">
+            <div className="flex items-center space-x-4 mb-6 text-sm flex-wrap gap-2">
               <span className="bg-blue-600 text-white px-3 py-1 rounded-sm font-medium uppercase tracking-wide">
                 {getCategoryName(article.categories)}
               </span>
@@ -239,7 +241,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 {formatDate(article.created_at)}
               </span>
               <span className="text-gray-400">•</span>
-              <span className="text-gray-600">Por Redacción</span>
+              <ViewCounter articleId={article.id} initialViews={Math.floor(Math.random() * 5000) + 1000} />
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
@@ -307,44 +309,46 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
         {/* Related Articles */}
         {relatedArticles && relatedArticles.length > 0 && (
-          <section className="bg-white border-t border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-                Noticias Relacionadas
+          <section className="mt-12">
+            <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-blue-600">
+                Artículos Relacionados
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {relatedArticles.map((relatedArticle) => (
-                  <article key={relatedArticle.id} className="border border-gray-200 hover:shadow-md transition-shadow">
-                    <div className="aspect-video bg-gray-200 border-b border-gray-200 relative">
-                      <OptimizedImage 
-                        src={relatedArticle.image_url || ''} 
-                        alt={relatedArticle.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-3 text-xs text-gray-600 uppercase tracking-wide">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm">
-                          {getCategoryName(relatedArticle.categories)}
-                        </span>
-                        <span>{new Date(relatedArticle.created_at).toLocaleDateString('es-ES')}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedArticles.slice(0, 3).map((relatedArticle) => (
+                  <article key={relatedArticle.id} className="group border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-300 rounded-sm overflow-hidden">
+                    <a href={`/articulos/${relatedArticle.id}`} className="block">
+                      <div className="aspect-video bg-gray-200 relative overflow-hidden">
+                        <OptimizedImage 
+                          src={relatedArticle.image_url || ''} 
+                          alt={relatedArticle.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
                       </div>
-                      <h3 className="font-bold text-gray-900 mb-2 text-sm leading-tight">
-                        <a href={`/articulos/${relatedArticle.id}`} className="hover:text-blue-600 transition-colors">
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-3 text-xs">
+                          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm font-medium uppercase tracking-wide">
+                            {getCategoryName(relatedArticle.categories)}
+                          </span>
+                          <span className="text-gray-500">{new Date(relatedArticle.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                        </div>
+                        <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
                           {relatedArticle.title}
-                        </a>
-                      </h3>
-                      <p className="text-xs text-gray-600 mb-3">
-                        {relatedArticle.excerpt?.substring(0, 80)}
-                        {relatedArticle.excerpt && relatedArticle.excerpt.length > 80 && '...'}
-                      </p>
-                      <a href={`/articulos/${relatedArticle.id}`} className="text-xs text-gray-900 font-medium hover:text-blue-600 transition-colors">
-                        Leer más →
-                      </a>
-                    </div>
+                        </h3>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
+                          {relatedArticle.excerpt}
+                        </p>
+                        <span className="text-xs text-blue-600 font-medium flex items-center group-hover:translate-x-1 transition-transform">
+                          Leer artículo
+                          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </span>
+                      </div>
+                    </a>
                   </article>
                 ))}
               </div>

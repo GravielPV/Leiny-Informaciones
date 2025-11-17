@@ -52,9 +52,23 @@ function LiveVideoButton() {
   return (
     <Link 
       href={`/live/${currentVideo.id}`}
-      className="bg-red-600 px-2 py-1 text-xs font-bold uppercase tracking-wide hover:bg-red-700 transition-colors duration-200"
+      className="relative bg-red-600 px-3 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wide hover:bg-red-700 transition-all duration-200 flex items-center space-x-2 group"
     >
-      {currentVideo.is_live ? 'En Vivo' : 'Video'}
+      {currentVideo.is_live && (
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+        </span>
+      )}
+      <span className="group-hover:scale-105 transition-transform">
+        {currentVideo.is_live ? '🔴 En Vivo' : '📺 Video'}
+      </span>
+      {currentVideo.is_live && (
+        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+        </span>
+      )}
     </Link>
   )
 }
@@ -72,7 +86,7 @@ function CurrentDateTime() {
         month: 'long',
         day: 'numeric'
       }))
-      setCurrentTime(now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
+      setCurrentTime(now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }))
     }
 
     // Actualizar inmediatamente
@@ -99,7 +113,17 @@ function CurrentDateTime() {
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [isScrolled, setIsScrolled] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -109,7 +133,9 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className={`bg-white border-b border-gray-200 sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled ? 'shadow-md' : ''
+    }`}>
       {/* Top bar - responsive */}
       <div className="bg-gray-900 text-white py-1">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">

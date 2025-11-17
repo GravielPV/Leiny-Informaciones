@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import ConditionalLayout from '@/components/ConditionalLayout'
 import GlobalErrorHandler from '@/components/GlobalErrorHandler'
+import ScrollToTop from '@/components/ScrollToTop'
+import PageTransition from '@/components/PageTransition'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -86,9 +88,11 @@ export default function RootLayout({
     <html lang="es" data-scroll-behavior="smooth">
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning={true}>
         <GlobalErrorHandler />
+        <PageTransition />
         <ConditionalLayout>
           {children}
         </ConditionalLayout>
+        <ScrollToTop />
       </body>
     </html>
   );
