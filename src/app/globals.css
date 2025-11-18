@@ -216,8 +216,18 @@ img {
   line-height: 0;
 }
 
+/* Aspect ratio containers */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  line-height: 0;
+}
+
 /* Eliminar bordes y líneas grises en imágenes */
-.image-container img {
+.image-container img,
+.aspect-video img {
   border: none !important;
   box-shadow: none !important;
   outline: none !important;
@@ -228,6 +238,9 @@ img {
   display: block !important;
   vertical-align: bottom !important;
   line-height: 0 !important;
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Eliminar líneas en contenedores de artículos */

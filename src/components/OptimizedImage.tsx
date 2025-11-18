@@ -69,7 +69,8 @@ const OptimizedImage = ({
           src={imageSrc}
           alt={alt}
           fill
-          className={`object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+          className={`object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+          style={{ objectFit: 'cover' }}
           onError={handleError}
           onLoad={handleLoad}
           priority={priority}
