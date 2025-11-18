@@ -1,20 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
 import { getAllLiveVideos, updateLiveVideo, deleteLiveVideo } from '@/lib/supabase/liveVideos'
 import { extractYouTubeVideoId, getYouTubeThumbnail } from '@/utils/youtubeUtils'
 import type { LiveVideo } from '@/utils/youtubeUtils'
 
-interface EditLiveVideoPageProps {
-  params: {
-    id: string
-  }
-}
-
-export default function EditLiveVideoPage({ params }: EditLiveVideoPageProps) {
+export default function EditLiveVideoPage() {
   const router = useRouter()
+  const params = useParams()
+  const videoId = params.id as string
+  
   const [video, setVideo] = useState<LiveVideo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -34,13 +31,15 @@ export default function EditLiveVideoPage({ params }: EditLiveVideoPageProps) {
   })
 
   useEffect(() => {
-    loadVideo()
-  }, [params.id])
+    if (videoId) {
+      loadVideo()
+    }
+  }, [videoId])
 
   const loadVideo = async () => {
     try {
       const videos = await getAllLiveVideos()
-      const foundVideo = videos.find(v => v.id === params.id)
+      const foundVideo = videos.find(v => v.id === videoId)
       
       if (!foundVideo) {
         setError('Video no encontrado')
@@ -119,7 +118,7 @@ export default function EditLiveVideoPage({ params }: EditLiveVideoPageProps) {
     setError('')
 
     try {
-      const result = await updateLiveVideo(params.id, {
+      const result = await updateLiveVideo(videoId, {
         title: formData.title,
         youtube_url: formData.youtube_url,
         description: formData.description,
