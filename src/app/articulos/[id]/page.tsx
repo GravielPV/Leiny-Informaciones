@@ -5,7 +5,6 @@ import { Metadata } from 'next'
 import ShareButtons from '@/components/ShareButtons'
 import OptimizedImage from '@/components/OptimizedImage'
 import Breadcrumbs from '@/components/Breadcrumbs'
-import ViewCounter from '@/components/ViewCounter'
 import AdSenseAd from '@/components/AdSenseAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 
@@ -277,8 +276,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <span className="text-gray-600">
                 {formatDate(article.created_at)}
               </span>
-              <span className="text-gray-400">•</span>
-              <ViewCounter articleId={article.id} initialViews={Math.floor(Math.random() * 5000) + 1000} />
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">

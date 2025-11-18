@@ -208,10 +208,12 @@ img {
 .image-container {
   position: relative;
   overflow: hidden;
-  background: #f3f4f6;
+  background: transparent;
   border: none;
   box-shadow: none;
   border-radius: 0;
+  display: block;
+  line-height: 0;
 }
 
 /* Eliminar bordes y líneas grises en imágenes */
@@ -221,20 +223,27 @@ img {
   outline: none !important;
   border-bottom: none !important;
   border-top: none !important;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  vertical-align: bottom !important;
+  line-height: 0 !important;
 }
 
 /* Eliminar líneas en contenedores de artículos */
 .image-container::after,
 .image-container::before {
-  display: none;
+  display: none !important;
+  content: none !important;
 }
 
 /* Asegurar que las imágenes fill no tengan gaps */
 [data-nextjs-image] {
   border: none !important;
   outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
 }
 
 /* Mejorar transiciones de carga de imágenes */
