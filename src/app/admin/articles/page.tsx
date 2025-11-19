@@ -1,18 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import ArticleActions from './ArticleActions'
+import StatusBadge from '@/components/admin/StatusBadge'
+import StatCard from '@/components/admin/StatCard'
+import { Database } from '@/lib/types/database'
+import { formatDate } from '@/lib/utils'
+import { FileText, CheckCircle, Edit } from 'lucide-react'
 
-interface Article {
-  id: string
-  title: string
-  excerpt: string
-  status: 'draft' | 'published'
-  created_at: string
-  updated_at: string
-  categories: {
-    id: string
-    name: string
-  } | null
+type Article = Pick<Database['public']['Tables']['articles']['Row'], 'id' | 'title' | 'excerpt' | 'status' | 'created_at' | 'updated_at'> & {
+  categories: Pick<Database['public']['Tables']['categories']['Row'], 'id' | 'name'> | null
 }
 
 export default async function ArticlesPage() {
@@ -36,31 +32,6 @@ export default async function ArticlesPage() {
 
   if (error) {
     console.error('Error fetching articles:', error)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const getStatusBadge = (status: string) => {
-    if (status === 'published') {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          Publicado
-        </span>
-      )
-    }
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-        Borrador
-      </span>
-    )
   }
 
   // Hacer type conversion segura
@@ -87,71 +58,24 @@ export default async function ArticlesPage() {
 
       {/* Stats Summary */}
       <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">📰</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total de Artículos
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {typedArticles?.length || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">✅</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Publicados
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {typedArticles?.filter(a => a.status === 'published').length || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">📝</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Borradores
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {typedArticles?.filter(a => a.status === 'draft').length || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="Total de Artículos"
+          value={typedArticles?.length || 0}
+          icon={FileText}
+          color="blue"
+        />
+        <StatCard
+          title="Publicados"
+          value={typedArticles?.filter(a => a.status === 'published').length || 0}
+          icon={CheckCircle}
+          color="green"
+        />
+        <StatCard
+          title="Borradores"
+          value={typedArticles?.filter(a => a.status === 'draft').length || 0}
+          icon={Edit}
+          color="yellow"
+        />
       </div>
 
       {/* Articles List */}
@@ -205,7 +129,7 @@ export default async function ArticlesPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(article.status)}
+                          <StatusBadge status={article.status} />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(article.created_at)}

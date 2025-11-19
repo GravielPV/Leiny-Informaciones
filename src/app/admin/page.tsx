@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserWithRole } from '@/lib/auth'
 import Link from 'next/link'
 import WeatherWidget from '@/components/admin/WeatherWidgetDynamic'
+import StatCard from '@/components/admin/StatCard'
+import StatusBadge from '@/components/admin/StatusBadge'
 import { 
   FileText, 
   Users, 
@@ -12,55 +14,6 @@ import {
   Clock
 } from 'lucide-react'
 
-// Componente para las cards de estadísticas
-function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  change, 
-  changeType = 'neutral',
-  color = 'blue'
-}: {
-  title: string
-  value: number | string
-  icon: React.ComponentType<{ className?: string }>
-  change?: string
-  changeType?: 'positive' | 'negative' | 'neutral'
-  color?: 'blue' | 'green' | 'yellow' | 'purple'
-}) {
-  const colorClasses = {
-    blue: 'bg-blue-500 text-blue-600 bg-blue-50',
-    green: 'bg-green-500 text-green-600 bg-green-50', 
-    yellow: 'bg-yellow-500 text-yellow-600 bg-yellow-50',
-    purple: 'bg-purple-500 text-purple-600 bg-purple-50'
-  }
-
-  const changeClasses = {
-    positive: 'text-green-600',
-    negative: 'text-red-600',
-    neutral: 'text-gray-600'
-  }
-
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-          {change && (
-            <p className={`text-sm mt-1 ${changeClasses[changeType]}`}>
-              {change}
-            </p>
-          )}
-        </div>
-        <div className={`h-12 w-12 ${colorClasses[color].split(' ')[2]} rounded-lg flex items-center justify-center`}>
-          <Icon className={`h-6 w-6 ${colorClasses[color].split(' ')[1]}`} />
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // Componente para artículos recientes
 function RecentArticleCard({ article }: { 
   article: {
@@ -70,12 +23,6 @@ function RecentArticleCard({ article }: {
     status: string
   }
 }) {
-  const statusColors = {
-    published: 'bg-green-100 text-green-800',
-    draft: 'bg-yellow-100 text-yellow-800',
-    archived: 'bg-gray-100 text-gray-800'
-  }
-
   return (
     <div className="border-b border-gray-200 last:border-b-0 p-4 hover:bg-gray-50 transition-colors">
       <div className="flex items-center justify-between">
@@ -84,10 +31,7 @@ function RecentArticleCard({ article }: {
             {article.title}
           </h4>
           <div className="mt-1 flex items-center space-x-3">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[article.status as keyof typeof statusColors]}`}>
-              {article.status === 'published' ? 'Publicado' : 
-               article.status === 'draft' ? 'Borrador' : 'Archivado'}
-            </span>
+            <StatusBadge status={article.status} />
             <span className="text-xs text-gray-500">
               {new Date(article.created_at).toLocaleDateString()}
             </span>

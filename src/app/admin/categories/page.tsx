@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Plus, Edit, Trash2, Tag } from 'lucide-react'
+import { Plus, Edit, Trash2, Tag, FileText, CheckCircle } from 'lucide-react'
+import { formatDate } from '@/lib/utils'
+import StatCard from '@/components/admin/StatCard'
 
 interface Category {
   id: string
@@ -104,45 +106,24 @@ export default function CategoriesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Tag className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Categorías</p>
-              <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Tag className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Categorías Activas</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {categories.filter((cat: Category) => (cat.article_count || 0) > 0).length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Tag className="h-6 w-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Artículos</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {categories.reduce((acc: number, cat: Category) => acc + (cat.article_count || 0), 0)}
-              </p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="Total Categorías"
+          value={categories.length}
+          icon={Tag}
+          color="blue"
+        />
+        <StatCard
+          title="Categorías Activas"
+          value={categories.filter((cat: Category) => (cat.article_count || 0) > 0).length}
+          icon={CheckCircle}
+          color="green"
+        />
+        <StatCard
+          title="Total Artículos"
+          value={categories.reduce((acc: number, cat: Category) => acc + (cat.article_count || 0), 0)}
+          icon={FileText}
+          color="yellow"
+        />
       </div>
 
       {/* Categories Table */}
@@ -214,7 +195,7 @@ export default function CategoriesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(category.created_at).toLocaleDateString('es-ES')}
+                      {formatDate(category.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">

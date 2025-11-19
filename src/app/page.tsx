@@ -445,6 +445,8 @@ export default async function HomePage({
                   <MostReadWidget 
                     articles={articles.slice(0, 5).map(article => ({
                       ...article,
+                      image_url: article.image_url || undefined,
+                      excerpt: article.excerpt || '',
                       categories: Array.isArray(article.categories) 
                         ? article.categories 
                         : article.categories 

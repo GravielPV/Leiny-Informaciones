@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { formatDate } from '@/lib/utils'
+import StatCard from '@/components/admin/StatCard'
+import { Users, Shield, UserCheck } from 'lucide-react'
 
 interface UserWithRole {
   id: string
@@ -253,6 +256,28 @@ export default function UserManagementPage() {
           </div>
         </div>
 
+        {/* Stats */}
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
+          <StatCard
+            title="Total Usuarios"
+            value={users.length}
+            icon={Users}
+            color="blue"
+          />
+          <StatCard
+            title="Administradores"
+            value={users.filter(u => u.role === 'admin').length}
+            icon={Shield}
+            color="purple"
+          />
+          <StatCard
+            title="Publicistas"
+            value={users.filter(u => u.role === 'publicista').length}
+            icon={UserCheck}
+            color="green"
+          />
+        </div>
+
         {error && (
           <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
             {error}
@@ -431,7 +456,7 @@ export default function UserManagementPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(user.created_at).toLocaleDateString()}
+                          {formatDate(user.created_at)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           {user.id !== currentUser.id && (

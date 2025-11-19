@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, Eye, EyeOff, Play, Square } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff, Play, Square, Video, CheckCircle, Radio, Film } from 'lucide-react'
 import { getAllLiveVideos, enableLiveVideo, disableAllLiveVideos, deleteLiveVideo } from '@/lib/supabase/liveVideos'
 import type { LiveVideo } from '@/utils/youtubeUtils'
+import { formatDate } from '@/lib/utils'
+import StatCard from '@/components/admin/StatCard'
 
 export default function LiveVideosAdminPage() {
   const [videos, setVideos] = useState<LiveVideo[]>([])
@@ -82,15 +84,7 @@ export default function LiveVideosAdminPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+
 
   if (isLoading) {
     return (
@@ -283,31 +277,31 @@ export default function LiveVideosAdminPage() {
 
       {/* Stats */}
       {videos.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-gray-900">{videos.length}</div>
-              <div className="text-sm text-gray-600">Total Videos</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">
-                {videos.filter(v => v.is_enabled).length}
-              </div>
-              <div className="text-sm text-gray-600">Habilitados</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-red-600">
-                {videos.filter(v => v.is_live && v.is_enabled).length}
-              </div>
-              <div className="text-sm text-gray-600">En Vivo</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-blue-600">
-                {videos.filter(v => !v.is_live && v.is_enabled).length}
-              </div>
-              <div className="text-sm text-gray-600">Videos Grabados</div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Videos"
+            value={videos.length}
+            icon={Video}
+            color="blue"
+          />
+          <StatCard
+            title="Habilitados"
+            value={videos.filter(v => v.is_enabled).length}
+            icon={CheckCircle}
+            color="green"
+          />
+          <StatCard
+            title="En Vivo"
+            value={videos.filter(v => v.is_live && v.is_enabled).length}
+            icon={Radio}
+            color="purple"
+          />
+          <StatCard
+            title="Videos Grabados"
+            value={videos.filter(v => !v.is_live && v.is_enabled).length}
+            icon={Film}
+            color="yellow"
+          />
         </div>
       )}
     </div>
