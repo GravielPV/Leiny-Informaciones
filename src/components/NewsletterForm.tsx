@@ -135,6 +135,8 @@ export default function NewsletterForm({ variant = 'default', className = '' }: 
             placeholder="tu@email.com"
             disabled={loading}
             className={`${styles.input} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            aria-label="Correo electrónico para suscripción"
+            required
           />
         </div>
         
@@ -142,6 +144,7 @@ export default function NewsletterForm({ variant = 'default', className = '' }: 
           type="submit"
           disabled={loading}
           className={`${styles.button} ${loading ? 'opacity-50 cursor-not-allowed' : ''} flex items-center justify-center`}
+          aria-label={loading ? 'Suscribiendo...' : 'Suscribirse al boletín'}
         >
           {loading ? (
             <>

@@ -10,69 +10,46 @@ import { getCategorySlug } from '@/utils/categoryUtils'
 import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
 import { Metadata } from 'next'
+import { Database } from '@/lib/types/database'
+import { SITE_CONFIG, PAGINATION } from '@/lib/constants'
 
 // Metadata para homepage
 export const metadata: Metadata = {
-  title: 'Las Informaciones con Leyni - Noticias Actualizadas de República Dominicana',
-  description: 'Portal líder de noticias en República Dominicana. Mantente informado con las últimas noticias de política, economía, deportes, sociedad y más. Información confiable y actualizada las 24 horas.',
-  keywords: [
-    'noticias República Dominicana',
-    'noticias RD',
-    'última hora',
-    'política dominicana',
-    'economía',
-    'deportes',
-    'Santo Domingo',
-    'noticias actualizadas',
-    'periodismo',
-    'Las Informaciones con Leyni'
-  ],
+  title: `${SITE_CONFIG.name} - Noticias Actualizadas de República Dominicana`,
+  description: SITE_CONFIG.description,
+  keywords: SITE_CONFIG.keywords,
   openGraph: {
-    title: 'Las Informaciones con Leyni - Noticias de República Dominicana',
+    title: `${SITE_CONFIG.name} - Noticias de República Dominicana`,
     description: 'Portal líder de noticias. Información confiable y actualizada las 24 horas.',
     type: 'website',
-    locale: 'es_DO',
-    siteName: 'Las Informaciones con Leyni',
+    locale: SITE_CONFIG.locale,
+    siteName: SITE_CONFIG.name,
     images: [
       {
-        url: '/logo2.jpg',
+        url: SITE_CONFIG.ogImage,
         width: 1200,
         height: 630,
-        alt: 'Las Informaciones con Leyni - Portal de Noticias',
+        alt: `${SITE_CONFIG.name} - Portal de Noticias`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Las Informaciones con Leyni',
+    title: SITE_CONFIG.name,
     description: 'Portal líder de noticias en República Dominicana',
-    images: ['/logo2.jpg'],
+    images: [SITE_CONFIG.ogImage],
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com',
+    canonical: SITE_CONFIG.url,
   },
 }
 
 // Definir tipos para TypeScript
-interface Category {
-  id: string
-  name: string
-  color?: string
-}
+type Category = Pick<Database['public']['Tables']['categories']['Row'], 'id' | 'name' | 'color'>
 
-interface Article {
-  id: string
-  title: string
-  excerpt: string
-  content: string
-  image_url?: string
-  created_at: string
-  author_id?: string
-  categories?: Category | Category[]
+interface Article extends Pick<Database['public']['Tables']['articles']['Row'], 'id' | 'title' | 'content' | 'excerpt' | 'image_url' | 'created_at' | 'author_id'> {
+  categories: Category | Category[] | null
 }
-
-// Constantes de paginación
-const ARTICLES_PER_PAGE = 12
 
 export default async function HomePage({
   searchParams,
@@ -82,7 +59,7 @@ export default async function HomePage({
   const supabase = await createClient()
   const params = await searchParams
   const currentPage = parseInt(params.page || '1')
-  const offset = (currentPage - 1) * ARTICLES_PER_PAGE
+  const offset = (currentPage - 1) * PAGINATION.ARTICLES_PER_PAGE
 
   // Obtener el total de artículos publicados
   const { count: totalArticles } = await supabase
@@ -90,7 +67,7 @@ export default async function HomePage({
     .select('*', { count: 'exact', head: true })
     .eq('status', 'published')
 
-  const totalPages = Math.ceil((totalArticles || 0) / ARTICLES_PER_PAGE)
+  const totalPages = Math.ceil((totalArticles || 0) / PAGINATION.ARTICLES_PER_PAGE)
 
   // Obtener artículos publicados de la base de datos con paginación
   const { data: articles } = await supabase
@@ -111,7 +88,7 @@ export default async function HomePage({
     `)
     .eq('status', 'published')
     .order('created_at', { ascending: false })
-    .range(offset, offset + ARTICLES_PER_PAGE - 1) as { data: Article[] | null }
+    .range(offset, offset + PAGINATION.ARTICLES_PER_PAGE - 1) as { data: Article[] | null }
 
   // Obtener artículo destacado (más reciente)
   const featuredArticle = articles && articles.length > 0 ? articles[0] : null

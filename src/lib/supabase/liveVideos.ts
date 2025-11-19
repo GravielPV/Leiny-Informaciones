@@ -18,13 +18,16 @@ export async function getCurrentLiveVideo(): Promise<LiveVideo | null> {
       .single()
 
     if (error) {
-      console.error('Error fetching live video:', error)
+      // Solo loguear si no es un error de conexión (PGRST116 es "no rows returned", que es normal)
+      if (error.code !== 'PGRST116') {
+        console.warn('Error fetching live video:', error.message)
+      }
       return null
     }
 
     return data as LiveVideo
   } catch (error) {
-    console.error('Error connecting to live_videos table:', error)
+    // Silenciar errores de conexión en el cliente
     return null
   }
 }

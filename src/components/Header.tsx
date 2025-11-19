@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, X, Search } from 'lucide-react'
-import { getCurrentLiveVideo } from '@/lib/supabase/liveVideos'
-import type { LiveVideo } from '@/utils/youtubeUtils'
+import LiveVideoButton from './LiveVideoButton'
+import CurrentDateTime from './CurrentDateTime'
 
 const navigation = [
   { name: 'Última Hora', href: '/categoria/ultima-hora' },
@@ -18,97 +18,6 @@ const navigation = [
   { name: 'Economía', href: '/categoria/economia' },
   { name: 'Cultura', href: '/categoria/cultura' },
 ]
-
-function LiveVideoButton() {
-  const [currentVideo, setCurrentVideo] = useState<LiveVideo | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchCurrentVideo = async () => {
-      setIsLoading(true)
-      try {
-        const video = await getCurrentLiveVideo()
-        setCurrentVideo(video)
-      } catch (error) {
-        console.error('Error fetching live video:', error)
-        setCurrentVideo(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchCurrentVideo()
-    
-    // Actualizar cada 30 segundos
-    const interval = setInterval(fetchCurrentVideo, 30000)
-    
-    return () => clearInterval(interval)
-  }, [])
-
-  if (isLoading || !currentVideo) {
-    return null
-  }
-
-  return (
-    <Link 
-      href={`/live/${currentVideo.id}`}
-      className="relative bg-red-600 px-3 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wide hover:bg-red-700 transition-all duration-200 flex items-center space-x-2 group"
-    >
-      {currentVideo.is_live && (
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-        </span>
-      )}
-      <span className="group-hover:scale-105 transition-transform">
-        {currentVideo.is_live ? '🔴 En Vivo' : '📺 Video'}
-      </span>
-      {currentVideo.is_live && (
-        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-        </span>
-      )}
-    </Link>
-  )
-}
-
-function CurrentDateTime() {
-  const [currentTime, setCurrentTime] = useState('')
-  const [currentDate, setCurrentDate] = useState('')
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date()
-      setCurrentDate(now.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }))
-      setCurrentTime(now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }))
-    }
-
-    // Actualizar inmediatamente
-    updateTime()
-    
-    // Actualizar cada segundo
-    const timer = setInterval(updateTime, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
-
-  return (
-    <>
-      <span className="font-medium">
-        🇩🇴 República Dominicana - {currentDate || 'cargando...'}
-      </span>
-      <span className="font-medium">
-        🕒 {currentTime || '--:--'}
-      </span>
-    </>
-  )
-}
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -185,6 +94,7 @@ export default function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-40 xl:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                aria-label="Buscar noticias"
               />
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             </form>
@@ -196,6 +106,7 @@ export default function Header() {
               type="button"
               className="text-gray-600 hover:text-gray-900 p-1 sm:p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
             >
               {mobileMenuOpen ? (
                 <X className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -235,6 +146,7 @@ export default function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Buscar noticias en móvil"
               />
               <Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
             </form>

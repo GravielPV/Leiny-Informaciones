@@ -7,6 +7,7 @@ export interface Database {
           name: string
           slug: string
           description: string | null
+          color?: string | null
           created_at: string
         }
         Insert: {
@@ -14,6 +15,7 @@ export interface Database {
           name: string
           slug: string
           description?: string | null
+          color?: string | null
           created_at?: string
         }
         Update: {
@@ -21,6 +23,7 @@ export interface Database {
           name?: string
           slug?: string
           description?: string | null
+          color?: string | null
           created_at?: string
         }
       }

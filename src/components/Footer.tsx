@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { SITE_CONFIG } from '@/lib/constants'
 
 export default function Footer() {
   return (
@@ -12,12 +13,12 @@ export default function Footer() {
             <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
               <Image 
                 src="/logo2.jpg" 
-                alt="Las Informaciones con Leyni Logo" 
+                alt={`${SITE_CONFIG.name} Logo`}
                 width={48}
                 height={48}
                 className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded flex-shrink-0"
               />
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">Las Informaciones con Leyni</h3>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">{SITE_CONFIG.name}</h3>
             </div>
             <p className="text-gray-300 mb-4 leading-relaxed text-sm sm:text-base">
               Medio de comunicación comprometido con el periodismo independiente y responsable. 

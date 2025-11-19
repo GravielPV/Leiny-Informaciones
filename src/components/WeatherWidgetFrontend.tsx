@@ -158,7 +158,8 @@ export default function WeatherWidgetFrontend() {
           return
         }
       } catch (wttrError) {
-        console.warn('wttr.in no disponible:', wttrError)
+        // Silently fail and try next provider
+        // console.debug('wttr.in no disponible:', wttrError)
       }
 
       // Segundo intento: usar OpenMeteo (API gratuita sin llave)
@@ -359,6 +360,7 @@ export default function WeatherWidgetFrontend() {
             className={`p-1 hover:bg-blue-700 rounded transition-colors ${refreshing ? 'cursor-not-allowed' : ''}`}
             title="Actualizar"
             disabled={refreshing}
+            aria-label={refreshing ? "Actualizando clima..." : "Actualizar clima"}
           >
             <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 text-white ${refreshing ? 'animate-spin' : ''}`} />
           </button>

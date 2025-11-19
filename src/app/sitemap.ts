@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { SITE_CONFIG } from '@/lib/constants'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient()
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
+  const baseUrl = SITE_CONFIG.url
 
   // Obtener todos los artículos publicados
   const { data: articles } = await supabase
