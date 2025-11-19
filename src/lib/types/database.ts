@@ -38,6 +38,7 @@ export interface Database {
           category_id: string
           author_id: string
           published: boolean
+          status: string
           featured: boolean
           views: number
           created_at: string
@@ -54,6 +55,7 @@ export interface Database {
           category_id: string
           author_id: string
           published?: boolean
+          status?: string
           featured?: boolean
           views?: number
           created_at?: string
@@ -70,6 +72,7 @@ export interface Database {
           category_id?: string
           author_id?: string
           published?: boolean
+          status?: string
           featured?: boolean
           views?: number
           created_at?: string
