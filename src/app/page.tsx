@@ -11,7 +11,7 @@ import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
 import { Metadata } from 'next'
 import { Database } from '@/lib/types/database'
-import { SITE_CONFIG, PAGINATION } from '@/lib/constants'
+import { SITE_CONFIG, PAGINATION, ADSENSE_CONFIG } from '@/lib/constants'
 
 // Metadata para homepage
 export const metadata: Metadata = {
@@ -426,7 +426,7 @@ export default async function HomePage({
                 <FadeInSection direction="left" delay={150}>
                   <div>
                     <AdSenseAd 
-                      adSlot="9876543210" 
+                      adSlot={ADSENSE_CONFIG.SLOTS.HOME_SIDEBAR}
                       adFormat="vertical"
                       className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
                     />

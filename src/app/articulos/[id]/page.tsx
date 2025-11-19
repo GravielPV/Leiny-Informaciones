@@ -7,6 +7,7 @@ import OptimizedImage from '@/components/OptimizedImage'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import AdSenseAd from '@/components/AdSenseAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
+import { ADSENSE_CONFIG } from '@/lib/constants'
 
 interface Category {
   id: string
@@ -307,7 +308,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {/* In-Article Ad */}
           <div className="my-8">
             <AdSenseAd 
-              adSlot="1122334455" 
+              adSlot={ADSENSE_CONFIG.SLOTS.ARTICLE_TOP}
               adFormat="horizontal"
               className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
             />
@@ -352,7 +353,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {/* Ad after article */}
           <div className="mt-8">
             <AdSenseAd 
-              adSlot="5544332211" 
+              adSlot={ADSENSE_CONFIG.SLOTS.ARTICLE_BOTTOM}
               adFormat="horizontal"
               className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
             />

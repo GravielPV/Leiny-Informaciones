@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { ADSENSE_CONFIG } from '@/lib/constants'
 
 interface AdSenseAdProps {
   adSlot: string
@@ -16,9 +17,11 @@ export default function AdSenseAd({
   className = ''
 }: AdSenseAdProps) {
   const isDev = process.env.NODE_ENV === 'development'
+  // Verificar si es un ID de placeholder
+  const isPlaceholder = adSlot === '1234567890' || adSlot === '9876543210'
 
   useEffect(() => {
-    if (isDev) return // No cargar ads en desarrollo
+    if (isDev || isPlaceholder) return // No cargar ads en desarrollo o si es placeholder
 
     try {
       // @ts-expect-error - adsbygoogle is loaded by Google AdSense script
@@ -29,7 +32,7 @@ export default function AdSenseAd({
     } catch (err) {
       console.error('AdSense error:', err)
     }
-  }, [isDev])
+  }, [isDev, isPlaceholder])
 
   if (isDev) {
     return (
@@ -43,12 +46,17 @@ export default function AdSenseAd({
     )
   }
 
+  // Si es placeholder en producción, no renderizar nada para evitar errores 400
+  if (isPlaceholder) {
+    return null
+  }
+
   return (
     <div className={`adsense-container ${className}`}>
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-7405911291221724"
+        data-ad-client={ADSENSE_CONFIG.CLIENT_ID}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-full-width-responsive={fullWidthResponsive.toString()}
