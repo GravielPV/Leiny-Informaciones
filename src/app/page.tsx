@@ -443,7 +443,7 @@ export default async function HomePage({
                 {/* Most Read Articles */}
                 <FadeInSection direction="left" delay={300}>
                   <MostReadWidget 
-                    articles={articles.slice(0, 5).map(article => ({
+                    articles={(articles || []).slice(0, 5).map(article => ({
                       ...article,
                       image_url: article.image_url || undefined,
                       excerpt: article.excerpt || '',
