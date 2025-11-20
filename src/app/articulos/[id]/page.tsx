@@ -38,7 +38,9 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const { id } = resolvedParams
   const supabase = await createClient()
 
-  const { data: article } = await supabase
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
+  let query = supabase
     .from('articles')
     .select(`
       id,
@@ -52,10 +54,16 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
         name
       )
     `)
-    .eq('id', id)
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
-    .single()
+
+  if (isUuid) {
+    query = query.eq('id', id)
+  } else {
+    query = query.eq('slug', id)
+  }
+
+  const { data: article } = await query.single()
 
   if (!article) {
     return {
@@ -150,8 +158,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id } = resolvedParams
   const supabase = await createClient()
 
-  // Obtener el artículo específico
-  const { data: article, error } = await supabase
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
+  let query = supabase
     .from('articles')
     .select(`
       id,
@@ -168,10 +177,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         color
       )
     `)
-    .eq('id', id)
     .eq('status', 'published')
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
-    .single() as { data: Article | null, error: unknown }
+
+  if (isUuid) {
+    query = query.eq('id', id)
+  } else {
+    query = query.eq('slug', id)
+  }
+
+  // Obtener el artículo específico
+  const { data: article, error } = await query.single() as { data: Article | null, error: unknown }
 
   if (error || !article) {
     notFound()
@@ -194,7 +210,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       )
     `)
     .eq('status', 'published')
-    .neq('id', id)
+    .neq('id', article.id) // Use article.id here instead of param id which might be slug
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
     .order('published_at', { ascending: false, nullsFirst: false })
     .limit(4) as { data: Article[] | null }

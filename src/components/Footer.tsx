@@ -25,7 +25,7 @@ export default function Footer() {
               Informando a la República Dominicana con veracidad, transparencia y profesionalismo.
             </p>
             <div className="text-xs sm:text-sm text-gray-400 border-l-4 border-l-blue-600 pl-4 space-y-1 sm:space-y-2">
-              <p>📍 Santo Domingo, República Dominicana</p>
+              <p>📍 Bajos de Haina, San Cristobal</p>
               <p>📞 +1 (809) 555-0123</p>
               <p>✉️ <span className="text-blue-400">info@informacionesleyni.com</span></p>
               <p>🌐 <span className="text-blue-400">www.informacionesleyni.com</span></p>
