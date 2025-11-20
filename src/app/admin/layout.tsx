@@ -11,7 +11,8 @@ import {
   LogOut,
   ExternalLink,
   HelpCircle,
-  Play
+  Play,
+  Megaphone
 } from 'lucide-react'
 
 // Componente para el contenido del sidebar
@@ -74,6 +75,14 @@ function SidebarContent({ user }: { user: { email?: string; role?: string | null
           >
             <Play className="h-5 w-5 mr-3 text-gray-400 group-hover:text-blue-500" />
             Videos en Vivo
+          </Link>
+
+          <Link 
+            href="/admin/ads"
+            className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors"
+          >
+            <Megaphone className="h-5 w-5 mr-3 text-gray-400 group-hover:text-blue-500" />
+            Edición Anuncio
           </Link>
         </div>
       </nav>

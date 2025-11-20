@@ -20,6 +20,7 @@ interface Article {
   content: string
   image_url?: string
   created_at: string
+  published_at?: string
   author_id?: string
   categories?: Category | Category[]
 }
@@ -84,6 +85,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       content,
       image_url,
       created_at,
+      published_at,
       author_id,
       categories (
         id,
@@ -92,7 +94,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       )
     `)
     .eq('status', 'published')
-    .order('created_at', { ascending: false })
+    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    .order('published_at', { ascending: false, nullsFirst: false })
     .limit(20) as { data: Article[] | null }
 
   // Filtrar artículos por categoría
@@ -194,7 +197,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                         <span className="bg-blue-600 text-white px-3 py-1 rounded-sm font-medium group-hover:bg-blue-700 transition-colors">
                           {getCategoryName(filteredArticles[0].categories)}
                         </span>
-                        <span>{formatDate(filteredArticles[0].created_at)}</span>
+                        <span>{formatDate(filteredArticles[0].published_at || filteredArticles[0].created_at)}</span>
                         <span className="hidden sm:inline">•</span>
                         <span className="hidden sm:inline">Por Redacción</span>
                       </div>
@@ -246,7 +249,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                             <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm font-medium group-hover:bg-blue-200 transition-colors">
                               {getCategoryName(article.categories)}
                             </span>
-                            <span>{formatDate(article.created_at)}</span>
+                            <span>{formatDate(article.published_at || article.created_at)}</span>
                           </div>
                           <h3 className="font-bold text-gray-900 mb-3 text-lg leading-tight group-hover:text-blue-600 transition-colors duration-300">
                             {article.title}

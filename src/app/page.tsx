@@ -6,6 +6,7 @@ import ShareButtons from '@/components/ShareButtons'
 import MostReadWidget from '@/components/MostReadWidget'
 import FadeInSection from '@/components/FadeInSection'
 import AdSenseAd from '@/components/AdSenseAd'
+import DynamicAd from '@/components/DynamicAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
 // Definir tipos para TypeScript
 type Category = Pick<Database['public']['Tables']['categories']['Row'], 'id' | 'name' | 'color'>
 
-interface Article extends Pick<Database['public']['Tables']['articles']['Row'], 'id' | 'title' | 'content' | 'excerpt' | 'image_url' | 'created_at' | 'author_id'> {
+interface Article extends Pick<Database['public']['Tables']['articles']['Row'], 'id' | 'title' | 'content' | 'excerpt' | 'image_url' | 'created_at' | 'published_at' | 'author_id'> {
   categories: Category | Category[] | null
 }
 
@@ -66,6 +67,7 @@ export default async function HomePage({
     .from('articles')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'published')
+    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
 
   const totalPages = Math.ceil((totalArticles || 0) / PAGINATION.ARTICLES_PER_PAGE)
 
@@ -79,6 +81,7 @@ export default async function HomePage({
       content,
       image_url,
       created_at,
+      published_at,
       author_id,
       categories (
         id,
@@ -87,7 +90,8 @@ export default async function HomePage({
       )
     `)
     .eq('status', 'published')
-    .order('created_at', { ascending: false })
+    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    .order('published_at', { ascending: false, nullsFirst: false })
     .range(offset, offset + PAGINATION.ARTICLES_PER_PAGE - 1) as { data: Article[] | null }
 
   // Obtener artículo destacado (más reciente)
@@ -204,7 +208,7 @@ export default async function HomePage({
                                 : featuredArticle.categories?.name || 'General'
                               }
                             </span>
-                            {isNewArticle(featuredArticle.created_at) && (
+                            {isNewArticle(featuredArticle.published_at || featuredArticle.created_at) && (
                               <span className="bg-red-500 text-white px-2 py-1 rounded-sm font-bold flex items-center space-x-1 animate-pulse">
                                 <Flame className="w-3 h-3" />
                                 <span>NUEVO</span>
@@ -212,7 +216,7 @@ export default async function HomePage({
                             )}
                           </div>
                           <div className="flex items-center space-x-3 text-gray-600">
-                            <span>{formatDate(featuredArticle.created_at)}</span>
+                            <span>{formatDate(featuredArticle.published_at || featuredArticle.created_at)}</span>
                           </div>
                         </div>
                         <a href={`/articulos/${featuredArticle.id}`} className="block">
@@ -241,8 +245,8 @@ export default async function HomePage({
                 {/* Ad after featured article */}
                 <FadeInSection direction="up" delay={100}>
                   <div className="mb-6 sm:mb-8">
-                    <AdSenseAd 
-                      adSlot="1234567890" 
+                    <DynamicAd 
+                      slotKey="HOME_HEADER"
                       adFormat="horizontal"
                       className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
                     />
@@ -280,14 +284,14 @@ export default async function HomePage({
                                       : article.categories?.name || 'General'
                                     }
                                   </span>
-                                  {isNewArticle(article.created_at) && (
+                                  {isNewArticle(article.published_at || article.created_at) && (
                                     <span className="bg-green-500 text-white px-1.5 py-0.5 rounded-sm text-xs font-bold">
                                       NUEVO
                                     </span>
                                   )}
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-xs">{formatDate(article.created_at)}</span>
+                                  <span className="text-xs">{formatDate(article.published_at || article.created_at)}</span>
                                 </div>
                               </div>
                               <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base leading-tight group-hover:text-blue-600 transition-colors duration-300">
@@ -425,8 +429,8 @@ export default async function HomePage({
                 {/* Sidebar Ad */}
                 <FadeInSection direction="left" delay={150}>
                   <div>
-                    <AdSenseAd 
-                      adSlot={ADSENSE_CONFIG.SLOTS.HOME_SIDEBAR}
+                    <DynamicAd 
+                      slotKey="HOME_SIDEBAR"
                       adFormat="vertical"
                       className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
                     />

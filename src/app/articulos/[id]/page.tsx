@@ -6,6 +6,7 @@ import ShareButtons from '@/components/ShareButtons'
 import OptimizedImage from '@/components/OptimizedImage'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import AdSenseAd from '@/components/AdSenseAd'
+import DynamicAd from '@/components/DynamicAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 import { ADSENSE_CONFIG } from '@/lib/constants'
 
@@ -22,6 +23,7 @@ interface Article {
   content: string
   image_url?: string
   created_at: string
+  published_at?: string
   author_id?: string
   categories?: Category | Category[]
 }
@@ -45,12 +47,14 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       content,
       image_url,
       created_at,
+      published_at,
       categories (
         name
       )
     `)
     .eq('id', id)
     .eq('status', 'published')
+    .lte('published_at', new Date().toISOString())
     .single()
 
   if (!article) {
@@ -65,7 +69,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     : (article.categories as Category)?.name || 'Noticias'
 
   const cleanExcerpt = article.excerpt?.replace(/<[^>]*>/g, '') || article.title
-  const publishDate = new Date(article.created_at).toISOString()
+  const publishDate = new Date(article.published_at || article.created_at).toISOString()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
 
   return {
@@ -156,6 +160,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       content,
       image_url,
       created_at,
+      published_at,
       author_id,
       categories (
         id,
@@ -165,6 +170,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     `)
     .eq('id', id)
     .eq('status', 'published')
+    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
     .single() as { data: Article | null, error: unknown }
 
   if (error || !article) {
@@ -180,6 +186,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       excerpt,
       image_url,
       created_at,
+      published_at,
       categories (
         id,
         name,
@@ -188,7 +195,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     `)
     .eq('status', 'published')
     .neq('id', id)
-    .order('created_at', { ascending: false })
+    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    .order('published_at', { ascending: false, nullsFirst: false })
     .limit(4) as { data: Article[] | null }
 
   // Función para formatear fecha
@@ -223,8 +231,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     headline: article.title,
     description: article.excerpt?.replace(/<[^>]*>/g, '') || article.title,
     image: article.image_url ? [article.image_url] : [],
-    datePublished: article.created_at,
-    dateModified: article.created_at,
+    datePublished: article.published_at || article.created_at,
+    dateModified: article.published_at || article.created_at,
     author: {
       '@type': 'Organization',
       name: 'Las Informaciones con Leyni',
@@ -275,7 +283,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 {getCategoryName(article.categories)}
               </span>
               <span className="text-gray-600">
-                {formatDate(article.created_at)}
+                {formatDate(article.published_at || article.created_at)}
               </span>
             </div>
             
@@ -307,8 +315,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
           {/* In-Article Ad */}
           <div className="my-8">
-            <AdSenseAd 
-              adSlot={ADSENSE_CONFIG.SLOTS.ARTICLE_TOP}
+            <DynamicAd 
+              slotKey="ARTICLE_TOP"
               adFormat="horizontal"
               className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
             />
@@ -352,8 +360,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
           {/* Ad after article */}
           <div className="mt-8">
-            <AdSenseAd 
-              adSlot={ADSENSE_CONFIG.SLOTS.ARTICLE_BOTTOM}
+            <DynamicAd 
+              slotKey="ARTICLE_BOTTOM"
               adFormat="horizontal"
               className="bg-gray-100 border border-gray-200 p-2 rounded-sm"
             />

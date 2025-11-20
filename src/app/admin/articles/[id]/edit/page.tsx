@@ -15,6 +15,7 @@ interface Article {
   status: 'draft' | 'published'
   category_id: string
   image_url?: string
+  published_at?: string
 }
 
 interface Category {
@@ -39,7 +40,8 @@ export default function EditArticlePage() {
     excerpt: '',
     status: 'draft' as 'draft' | 'published',
     category_id: '',
-    image_url: ''
+    image_url: '',
+    published_at: ''
   })
 
   useEffect(() => {
@@ -63,7 +65,8 @@ export default function EditArticlePage() {
           excerpt: articleData.excerpt,
           status: articleData.status,
           category_id: articleData.category_id,
-          image_url: articleData.image_url || ''
+          image_url: articleData.image_url || '',
+          published_at: articleData.published_at ? new Date(articleData.published_at).toISOString().slice(0, 16) : ''
         })
 
         // Fetch categories
@@ -101,7 +104,8 @@ export default function EditArticlePage() {
           status: formData.status,
           category_id: formData.category_id,
           image_url: formData.image_url || null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          published_at: formData.published_at ? new Date(formData.published_at).toISOString() : (formData.status === 'published' && !article?.published_at ? new Date().toISOString() : article?.published_at)
         })
         .eq('id', params.id)
 
@@ -230,19 +234,39 @@ export default function EditArticlePage() {
         </div>
 
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-            Estado *
-          </label>
-          <select
-            id="status"
-            required
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="draft">Borrador</option>
-            <option value="published">Publicado</option>
-          </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+                Estado *
+              </label>
+              <select
+                id="status"
+                required
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="draft">Borrador</option>
+                <option value="published">Publicado</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="publishedAt" className="block text-sm font-medium text-gray-700">
+                Fecha de Publicación (Programar)
+              </label>
+              <input
+                type="datetime-local"
+                id="publishedAt"
+                value={formData.published_at}
+                onChange={(e) => setFormData({ ...formData, published_at: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Deja en blanco para mantener la fecha actual. Si seleccionas una fecha futura, el artículo se programará.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end space-x-4">

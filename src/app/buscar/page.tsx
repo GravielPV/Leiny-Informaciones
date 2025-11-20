@@ -21,6 +21,7 @@ interface Article {
   content: string
   image_url?: string
   created_at: string
+  published_at?: string
   author_id?: string
   categories?: Category | Category[]
 }
@@ -67,6 +68,7 @@ function SearchPageContent() {
           content,
           image_url,
           created_at,
+          published_at,
           author_id,
           categories (
             id,
@@ -75,6 +77,7 @@ function SearchPageContent() {
           )
         `)
         .eq('status', 'published')
+        .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
 
       // Búsqueda por texto en título, excerpt y contenido
       queryBuilder = queryBuilder.or(
@@ -98,7 +101,7 @@ function SearchPageContent() {
       } else {
         // Ordenar resultados
         if (sortBy === 'date') {
-          queryBuilder = queryBuilder.order('created_at', { ascending: false })
+          queryBuilder = queryBuilder.order('published_at', { ascending: false, nullsFirst: false })
         }
 
         const { data, error } = await queryBuilder.limit(20)
@@ -310,7 +313,7 @@ function SearchPageContent() {
                       <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-sm font-medium group-hover:bg-blue-200 transition-colors">
                         {getCategoryName(article.categories)}
                       </span>
-                      <span>{formatDate(article.created_at)}</span>
+                      <span>{formatDate(article.published_at || article.created_at)}</span>
                     </div>
                     
                     <h3 

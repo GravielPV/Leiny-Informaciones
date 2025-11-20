@@ -6,6 +6,7 @@ import ConditionalLayout from '@/components/ConditionalLayout'
 import GlobalErrorHandler from '@/components/GlobalErrorHandler'
 import ScrollToTop from '@/components/ScrollToTop'
 import PageTransition from '@/components/PageTransition'
+import { AdSettingsProvider } from '@/context/AdSettingsContext'
 import { SITE_CONFIG, ADSENSE_CONFIG } from '@/lib/constants'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -81,20 +82,22 @@ export default function RootLayout({
       <head>
       </head>
       <body className={`${inter.className} antialiased min-h-screen flex flex-col`} suppressHydrationWarning={true}>
-        {process.env.NODE_ENV === 'production' && (
-          <Script 
-            async 
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CONFIG.CLIENT_ID}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        )}
-        <GlobalErrorHandler />
-        <PageTransition />
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
-        <ScrollToTop />
+        <AdSettingsProvider>
+          {process.env.NODE_ENV === 'production' && (
+            <Script 
+              async 
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CONFIG.CLIENT_ID}`}
+              crossOrigin="anonymous"
+              strategy="afterInteractive"
+            />
+          )}
+          <GlobalErrorHandler />
+          <PageTransition />
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+          <ScrollToTop />
+        </AdSettingsProvider>
       </body>
     </html>
   );

@@ -17,6 +17,7 @@ export default function NewArticlePage() {
   const [content, setContent] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [status, setStatus] = useState<'draft' | 'published'>('draft')
+  const [publishedAt, setPublishedAt] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -68,6 +69,7 @@ export default function NewArticlePage() {
           slug,
           category_id: categoryId || null,
           status,
+          published_at: publishedAt ? new Date(publishedAt).toISOString() : (status === 'published' ? new Date().toISOString() : null),
           image_url: imageUrl || null,
           author_id: session.user.id,
         })
@@ -186,37 +188,56 @@ export default function NewArticlePage() {
             </div>
 
             {/* Estado */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Estado
-              </label>
-              <div className="mt-2 space-y-2">
-                <div className="flex items-center">
-                  <input
-                    id="draft"
-                    type="radio"
-                    value="draft"
-                    checked={status === 'draft'}
-                    onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
-                  />
-                  <label htmlFor="draft" className="ml-3 block text-sm font-medium text-gray-700">
-                    Borrador
-                  </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Estado
+                </label>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <input
+                      id="draft"
+                      type="radio"
+                      value="draft"
+                      checked={status === 'draft'}
+                      onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
+                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                    />
+                    <label htmlFor="draft" className="ml-3 block text-sm font-medium text-gray-700">
+                      Borrador
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="published"
+                      type="radio"
+                      value="published"
+                      checked={status === 'published'}
+                      onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
+                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
+                    />
+                    <label htmlFor="published" className="ml-3 block text-sm font-medium text-gray-700">
+                      Publicado
+                    </label>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <input
-                    id="published"
-                    type="radio"
-                    value="published"
-                    checked={status === 'published'}
-                    onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"
-                  />
-                  <label htmlFor="published" className="ml-3 block text-sm font-medium text-gray-700">
-                    Publicado
-                  </label>
-                </div>
+              </div>
+
+              {/* Fecha de Publicación */}
+              <div>
+                <label htmlFor="publishedAt" className="block text-sm font-medium text-gray-700 mb-1">
+                  Fecha de Publicación (Programar)
+                </label>
+                <input
+                  type="datetime-local"
+                  id="publishedAt"
+                  value={publishedAt}
+                  onChange={(e) => setPublishedAt(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Deja en blanco para publicar inmediatamente. Si seleccionas una fecha futura, el artículo se programará.
+                </p>
               </div>
             </div>
           </div>
