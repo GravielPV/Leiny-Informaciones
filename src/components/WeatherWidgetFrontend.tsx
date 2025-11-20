@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, CloudRain, Wind, Droplets, Thermometer, MapPin, Calendar } from 'lucide-react'
 
 interface WeatherData {
   location: string
@@ -12,6 +12,7 @@ interface WeatherData {
   windSpeed: number
   pressure: number
   emoji: string
+  isDay: boolean
   forecast: Array<{
     day: string
     high: number
@@ -21,28 +22,9 @@ interface WeatherData {
   }>
 }
 
-interface WttrResponse {
-  current_condition: Array<{
-    temp_C: string
-    FeelsLikeC: string
-    humidity: string
-    windspeedKmph: string
-    pressure: string
-    weatherDesc: Array<{ value: string }>
-  }>
-  weather: Array<{
-    maxtempC: string
-    mintempC: string
-    hourly: Array<{
-      weatherDesc: Array<{ value: string }>
-    }>
-  }>
-}
-
 // Función para obtener emoji basado en la condición
-const getWeatherEmoji = (condition: string, hour: number = new Date().getHours()) => {
+const getWeatherEmoji = (condition: string, isDay: boolean = true) => {
   const lower = condition.toLowerCase()
-  const isDay = hour >= 6 && hour < 18
   
   if (lower.includes('soleado') || lower.includes('despejado')) {
     return isDay ? '☀️' : '🌙'
@@ -91,86 +73,15 @@ export default function WeatherWidgetFrontend() {
       }
       setError(null)
 
-      // Primero intentar con wttr.in que es más confiable y gratuito
+      // Usar OpenMeteo como fuente principal (más confiable y detallada)
       try {
-        const response = await fetch(
-          'https://wttr.in/Bajos_de_Haina,San_Cristobal,Dominican_Republic?format=j1',
-          { 
-            headers: {
-              'User-Agent': 'Las-Informaciones-Weather-Widget/1.0'
-            },
-            cache: 'no-cache' // Forzar datos frescos
-          }
-        )
-        
-        if (response.ok) {
-          const data: WttrResponse = await response.json()
-          const current = data.current_condition[0]
-          
-          // Traducir condiciones al español
-          const translateCondition = (condition: string) => {
-            const translations: { [key: string]: string } = {
-              'Clear': 'Despejado',
-              'Sunny': 'Soleado',
-              'Partly cloudy': 'Parcialmente nublado',
-              'Cloudy': 'Nublado',
-              'Overcast': 'Cubierto',
-              'Mist': 'Neblina',
-              'Fog': 'Niebla',
-              'Light rain': 'Lluvia ligera',
-              'Light rain shower': 'Lluvia ligera',
-              'Moderate rain': 'Lluvia moderada',
-              'Heavy rain': 'Lluvia fuerte',
-              'Thundery outbreaks possible': 'Posibles tormentas',
-              'Thunderstorm': 'Tormenta'
-            }
-            return translations[condition] || condition
-          }
-          
-          const currentCondition = translateCondition(current.weatherDesc[0].value)
-          
-          const realWeatherData: WeatherData = {
-            location: 'Bajos de Haina, San Cristóbal',
-            temperature: Math.round(parseFloat(current.temp_C)),
-            feelsLike: Math.round(parseFloat(current.FeelsLikeC)),
-            condition: currentCondition,
-            humidity: parseInt(current.humidity),
-            windSpeed: Math.round(parseFloat(current.windspeedKmph)),
-            pressure: Math.round(parseFloat(current.pressure)),
-            emoji: getWeatherEmoji(currentCondition),
-            forecast: data.weather.slice(1, 4).map((day: WttrResponse['weather'][0], index: number) => {
-              const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
-              const today = new Date().getDay()
-              const dayCondition = translateCondition(day.hourly[4]?.weatherDesc[0]?.value || day.hourly[0].weatherDesc[0].value)
-              
-              return {
-                day: days[(today + index + 1) % 7],
-                high: Math.round(parseFloat(day.maxtempC)),
-                low: Math.round(parseFloat(day.mintempC)),
-                condition: dayCondition,
-                emoji: getWeatherEmoji(dayCondition)
-              }
-            })
-          }
-          
-          setWeather(realWeatherData)
-          setLastUpdate(new Date())
-          return
-        }
-      } catch (wttrError) {
-        // Silently fail and try next provider
-        // console.debug('wttr.in no disponible:', wttrError)
-      }
-
-      // Segundo intento: usar OpenMeteo (API gratuita sin llave)
-      try {
-        // Coordenadas de Santo Domingo: 18.4861, -69.9312
-        const lat = 18.4861
-        const lon = -69.9312
+        // Coordenadas de Bajos de Haina: 18.4274, -70.0383
+        const lat = 18.4274
+        const lon = -70.0383
         
         const weatherResponse = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,surface_pressure&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America%2FSanto_Domingo&forecast_days=4`,
-          { cache: 'no-cache' } // Forzar datos frescos
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,surface_pressure&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America%2FSanto_Domingo&forecast_days=4`,
+          { cache: 'no-cache' }
         )
         
         if (weatherResponse.ok) {
@@ -194,22 +105,26 @@ export default function WeatherWidgetFrontend() {
               80: 'Chubascos ligeros',
               81: 'Chubascos moderados',
               82: 'Chubascos fuertes',
-              95: 'Tormenta'
+              95: 'Tormenta',
+              96: 'Tormenta con granizo',
+              99: 'Tormenta fuerte'
             }
             return codes[code] || 'Despejado'
           }
           
           const currentCondition = getConditionFromCode(data.current.weather_code)
+          const isDay = data.current.is_day === 1
           
           const meteoWeatherData: WeatherData = {
-            location: 'Santo Domingo, RD',
+            location: 'Bajos de Haina, RD',
             temperature: Math.round(data.current.temperature_2m),
             feelsLike: Math.round(data.current.apparent_temperature),
             condition: currentCondition,
             humidity: data.current.relative_humidity_2m,
             windSpeed: Math.round(data.current.wind_speed_10m * 3.6), // m/s to km/h
             pressure: Math.round(data.current.surface_pressure),
-            emoji: getWeatherEmoji(currentCondition),
+            emoji: getWeatherEmoji(currentCondition, isDay),
+            isDay: isDay,
             forecast: data.daily.weather_code.slice(1, 4).map((code: number, index: number) => {
               const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
               const today = new Date().getDay()
@@ -220,7 +135,7 @@ export default function WeatherWidgetFrontend() {
                 high: Math.round(data.daily.temperature_2m_max[index + 1]),
                 low: Math.round(data.daily.temperature_2m_min[index + 1]),
                 condition: dayCondition,
-                emoji: getWeatherEmoji(dayCondition)
+                emoji: getWeatherEmoji(dayCondition, true) // Forecast always shows day icons usually
               }
             })
           }
@@ -231,37 +146,39 @@ export default function WeatherWidgetFrontend() {
         }
       } catch (meteoError) {
         console.warn('Open-Meteo no disponible:', meteoError)
+        throw meteoError // Trigger fallback
       }
-
-      // Como último recurso, datos basados en patrones climáticos reales de RD
-      const currentHour = new Date().getHours()
-      const currentCondition = currentHour >= 6 && currentHour <= 17 ? 'Soleado' : 'Despejado'
-      const baseTemp = currentHour >= 6 && currentHour <= 17 
-        ? 28 + Math.sin((currentHour - 6) * Math.PI / 11) * 5  // 23-33°C durante el día
-        : 25 + Math.random() * 3 // 25-28°C durante la noche
-
-      const fallbackData: WeatherData = {
-        location: 'Santo Domingo, RD',
-        temperature: Math.round(baseTemp),
-        feelsLike: Math.round(baseTemp + 2 + Math.random() * 4),
-        condition: currentCondition + ' (Estimado)',
-        humidity: Math.round(70 + Math.random() * 20), // 70-90% típico del Caribe
-        windSpeed: Math.round(10 + Math.random() * 10), // 10-20 km/h
-        pressure: Math.round(1013 + Math.random() * 5), // 1013-1018 hPa
-        emoji: getWeatherEmoji(currentCondition),
-        forecast: [
-          { day: 'Mañana', high: Math.round(baseTemp + 3), low: Math.round(baseTemp - 5), condition: 'Soleado', emoji: '☀️' },
-          { day: 'Pasado', high: Math.round(baseTemp + 2), low: Math.round(baseTemp - 4), condition: 'Parcialmente nublado', emoji: '⛅' },
-          { day: 'Después', high: Math.round(baseTemp + 1), low: Math.round(baseTemp - 6), condition: 'Lluvia ligera', emoji: '🌦️' }
-        ]
-      }
-
-      setWeather(fallbackData)
-      setLastUpdate(new Date())
       
     } catch (err) {
-      setError('Error al obtener datos del clima')
-      console.error('Weather fetch error:', err)
+      // Fallback a datos estimados si falla la API
+      console.error('Weather fetch error, using fallback:', err)
+      
+      const currentHour = new Date().getHours()
+      const isDay = currentHour >= 6 && currentHour <= 18
+      const currentCondition = isDay ? 'Soleado' : 'Despejado'
+      const baseTemp = isDay 
+        ? 29 + Math.sin((currentHour - 6) * Math.PI / 12) * 3 
+        : 26
+        
+      const fallbackData: WeatherData = {
+        location: 'Bajos de Haina, RD',
+        temperature: Math.round(baseTemp),
+        feelsLike: Math.round(baseTemp + 3),
+        condition: currentCondition,
+        humidity: 78,
+        windSpeed: 15,
+        pressure: 1013,
+        emoji: getWeatherEmoji(currentCondition, isDay),
+        isDay: isDay,
+        forecast: [
+          { day: 'Mañana', high: 31, low: 24, condition: 'Soleado', emoji: '☀️' },
+          { day: 'Pasado', high: 30, low: 23, condition: 'Parcialmente nublado', emoji: '⛅' },
+          { day: 'Después', high: 29, low: 23, condition: 'Lluvia ligera', emoji: '🌦️' }
+        ]
+      }
+      
+      setWeather(fallbackData)
+      setLastUpdate(new Date())
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -277,14 +194,13 @@ export default function WeatherWidgetFrontend() {
     
     fetchWeatherData()
     
-    // Actualizar cada 10 minutos para datos reales más frescos
+    // Actualizar cada 15 minutos
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchWeatherData(true)
       }
-    }, 600000)
+    }, 900000)
     
-    // También actualizar cuando la pestaña vuelve a ser visible
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         fetchWeatherData(true)
@@ -299,141 +215,162 @@ export default function WeatherWidgetFrontend() {
     }
   }, [isClient])
 
-  // No renderizar nada hasta que esté en el cliente
-  if (!isClient) {
-    return (
-      <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-sm">
-        <div className="animate-pulse">
-          <div className="h-4 bg-white/20 rounded mb-2 w-3/4"></div>
-          <div className="h-8 bg-white/20 rounded mb-2 w-1/2"></div>
-          <div className="h-4 bg-white/20 rounded w-2/3"></div>
-        </div>
-      </div>
-    )
+  // Helper para el gradiente de fondo según el clima
+  const getBackgroundGradient = () => {
+    if (!weather) return 'bg-gradient-to-br from-blue-600 to-blue-800'
+    
+    const condition = weather.condition.toLowerCase()
+    const isDay = weather.isDay
+    const hour = new Date().getHours()
+
+    // Tormenta (Prioridad alta)
+    if (condition.includes('tormenta') || condition.includes('trueno')) {
+      return 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
+    }
+
+    // Lluvia
+    if (condition.includes('lluvia') || condition.includes('llovizna') || condition.includes('chubasco')) {
+      return isDay 
+        ? 'bg-gradient-to-br from-slate-700 via-blue-800 to-slate-800' 
+        : 'bg-gradient-to-br from-gray-900 via-slate-900 to-black'
+    }
+
+    // Nublado
+    if (condition.includes('nublado') || condition.includes('cubierto') || condition.includes('nubes')) {
+      return isDay
+        ? 'bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700'
+        : 'bg-gradient-to-br from-gray-800 via-gray-900 to-black'
+    }
+
+    // Neblina
+    if (condition.includes('niebla') || condition.includes('neblina')) {
+      return isDay
+        ? 'bg-gradient-to-br from-slate-400 via-gray-400 to-slate-500'
+        : 'bg-gradient-to-br from-gray-800 via-slate-800 to-gray-900'
+    }
+
+    // Despejado / Soleado
+    if (isDay) {
+      // Amanecer (6-8 AM)
+      if (hour >= 6 && hour <= 8) {
+        return 'bg-gradient-to-br from-orange-400 via-rose-400 to-blue-500'
+      }
+      // Atardecer (5-7 PM)
+      if (hour >= 17 && hour <= 19) {
+        return 'bg-gradient-to-br from-blue-600 via-orange-500 to-purple-600'
+      }
+      // Día normal
+      return 'bg-gradient-to-br from-blue-500 via-blue-400 to-cyan-400'
+    } else {
+      // Noche despejada
+      return 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900'
+    }
   }
 
-  if (loading) {
-    return (
-      <div className="bg-white border border-gray-200 p-4">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-300 rounded w-3/4 mb-3"></div>
-          <div className="h-8 bg-gray-300 rounded w-1/2 mb-3"></div>
-          <div className="space-y-2">
-            <div className="h-3 bg-gray-300 rounded w-full"></div>
-            <div className="h-6 bg-gray-300 rounded w-2/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  if (!isClient) return null // Evitar hydration mismatch
 
-  if (error) {
+  if (loading && !weather) {
     return (
-      <div className="bg-white border border-gray-200 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-gray-900">⚠️ Clima</h3>
-          <button 
-            onClick={refreshWeather}
-            className="p-1 hover:bg-gray-100 rounded transition-colors"
-            title="Reintentar"
-          >
-            <RefreshCw className="w-3 h-3" />
-          </button>
-        </div>
-        <p className="text-xs text-red-600">{error}</p>
-      </div>
+      <div className="w-full h-64 bg-gray-100 animate-pulse rounded-xl"></div>
     )
   }
 
   if (!weather) return null
 
+  const handleRefresh = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    refreshWeather()
+  }
+
+  const openProvider = () => {
+    window.open('https://www.meteored.do/tiempo-en_Bajos+de+Haina-America+Central-Republica+Dominicana-San+Cristobal--1-23291.html', '_blank')
+  }
+
   return (
-    <div className="bg-white border border-gray-200 rounded-lg sm:rounded-none overflow-hidden">
-      {/* Header - Responsive */}
-      <div className="bg-blue-600 px-3 sm:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs sm:text-sm font-bold text-white">
-            🌤️ El Tiempo
-          </h3>
-          <button 
-            onClick={refreshWeather}
-            className={`p-1 hover:bg-blue-700 rounded transition-colors ${refreshing ? 'cursor-not-allowed' : ''}`}
-            title="Actualizar"
-            disabled={refreshing}
-            aria-label={refreshing ? "Actualizando clima..." : "Actualizar clima"}
-          >
-            <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 text-white ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
+    <div 
+      onClick={openProvider}
+      className={`relative overflow-hidden rounded-xl shadow-lg text-white transition-all duration-500 cursor-pointer hover:shadow-xl transform hover:scale-[1.02] ${getBackgroundGradient()}`}
+      title="Ver más en Open-Meteo"
+    >
+      {/* Decorative circles */}
+      <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+      <div className="absolute bottom-[-10%] left-[-10%] w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+
+      {/* Header */}
+      <div className="relative p-4 flex justify-between items-start">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-white/80" />
+          <span className="text-sm font-medium text-white/90">{weather.location}</span>
+        </div>
+        <button 
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className={`p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors ${refreshing ? 'animate-spin' : ''}`}
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* Main Weather */}
+      <div className="relative px-6 py-2 flex flex-col items-center text-center">
+        <div className="text-6xl mb-2 filter drop-shadow-lg animate-in zoom-in duration-300">
+          {weather.emoji}
+        </div>
+        <div className="text-5xl font-bold tracking-tighter mb-1">
+          {weather.temperature}°
+        </div>
+        <div className="text-lg font-medium text-white/90 capitalize">
+          {weather.condition}
+        </div>
+        <div className="flex items-center gap-2 text-sm text-white/70 mt-1">
+          <span>Sensación {weather.feelsLike}°</span>
         </div>
       </div>
 
-      <div className="p-3 sm:p-4">
-        {/* Location y temperatura - Responsive */}
-        <div className="text-center mb-3 sm:mb-4">
-          <p className="text-xs text-gray-600 mb-1">{weather.location}</p>
-          <div className="flex items-center justify-center mb-2">
-            <span className="text-2xl sm:text-3xl mr-2">{weather.emoji}</span>
-            <div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                {weather.temperature}°C
-              </div>
-              <div className="text-xs text-gray-600 capitalize break-words">
-                {weather.condition}
+      {/* Details Grid */}
+      <div className="relative px-4 py-4 grid grid-cols-2 gap-3">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2.5 flex items-center gap-3">
+          <div className="p-1.5 bg-white/20 rounded-md">
+            <Droplets className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[10px] text-white/70 uppercase tracking-wider">Humedad</p>
+            <p className="text-sm font-semibold">{weather.humidity}%</p>
+          </div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2.5 flex items-center gap-3">
+          <div className="p-1.5 bg-white/20 rounded-md">
+            <Wind className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-[10px] text-white/70 uppercase tracking-wider">Viento</p>
+            <p className="text-sm font-semibold">{weather.windSpeed} km/h</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Forecast */}
+      <div className="relative bg-black/10 backdrop-blur-md p-4">
+        <div className="flex justify-between items-center gap-2">
+          {weather.forecast.map((day, idx) => (
+            <div key={idx} className="flex flex-col items-center flex-1">
+              <span className="text-xs font-medium text-white/80 mb-1">{day.day}</span>
+              <span className="text-xl mb-1">{day.emoji}</span>
+              <div className="flex items-center gap-1 text-xs">
+                <span className="font-bold">{day.high}°</span>
+                <span className="text-white/60">{day.low}°</span>
               </div>
             </div>
-          </div>
-          <p className="text-xs text-gray-500">
-            Sensación: {weather.feelsLike}°C
-          </p>
+          ))}
         </div>
+      </div>
 
-        {/* Detalles compactos - Responsive Grid */}
-        <div className="grid grid-cols-2 gap-2 mb-3 sm:mb-4 text-xs">
-          <div className="bg-gray-50 rounded p-2 text-center">
-            <div className="text-base sm:text-lg mb-1">💧</div>
-            <div className="text-gray-600 text-xs">Humedad</div>
-            <div className="font-medium text-xs sm:text-sm">{weather.humidity}%</div>
-          </div>
-          
-          <div className="bg-gray-50 rounded p-2 text-center">
-            <div className="text-base sm:text-lg mb-1">💨</div>
-            <div className="text-gray-600 text-xs">Viento</div>
-            <div className="font-medium text-xs sm:text-sm">{weather.windSpeed} km/h</div>
-          </div>
-        </div>
-
-        {/* Pronóstico de 3 días compacto - Responsive */}
-        <div className="border-t border-gray-200 pt-3">
-          <div className="grid grid-cols-3 gap-1 text-center text-xs">
-            {weather.forecast.map((day, index) => (
-              <div key={index} className="bg-gray-50 rounded p-1.5 sm:p-2">
-                <div className="font-medium text-gray-700 mb-1 text-xs">{day.day}</div>
-                <div className="text-sm sm:text-lg mb-1">{day.emoji}</div>
-                <div className="text-xs">
-                  <span className="font-bold text-gray-900">{day.high}°</span>
-                  <span className="text-gray-600">/{day.low}°</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Última actualización - Responsive */}
-        {lastUpdate && (
-          <div className="mt-3 pt-2 border-t border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 space-y-1 sm:space-y-0">
-              <span>🔄 Datos en tiempo real</span>
-              <span className={`${refreshing ? 'animate-pulse' : ''} text-center sm:text-right`}>
-                {refreshing ? 'Actualizando...' : 
-                  `${lastUpdate.toLocaleTimeString('es-DO', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}`
-                }
-              </span>
-            </div>
-          </div>
-        )}
+      {/* Footer */}
+      <div className="px-4 py-2 bg-black/20 text-[10px] text-white/50 text-center flex justify-between items-center">
+        <span>OpenMeteo Data</span>
+        <span>
+          {lastUpdate ? lastUpdate.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }) : ''}
+        </span>
       </div>
     </div>
   )

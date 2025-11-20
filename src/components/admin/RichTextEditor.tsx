@@ -110,7 +110,7 @@ export default function RichTextEditor({ content, onChange, placeholder = 'Escri
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
       {/* Toolbar */}
-      <div className="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1">
+      <div className="sticky top-0 z-10 bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1">
         {/* Text formatting */}
         <div className="flex gap-1 border-r border-gray-300 pr-2">
           <button

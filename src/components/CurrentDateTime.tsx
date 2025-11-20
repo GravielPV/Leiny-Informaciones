@@ -30,7 +30,7 @@ export default function CurrentDateTime() {
   return (
     <>
       <span className="font-medium hidden sm:inline">
-        🇩🇴 República Dominicana - {currentDate || 'cargando...'}
+        República Dominicana - {currentDate || 'cargando...'}
       </span>
       <span className="font-medium sm:hidden">
         {currentDate || '...'}
