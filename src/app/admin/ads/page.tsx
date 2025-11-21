@@ -172,7 +172,7 @@ export default function AdsManagerPage() {
           return (
             <div key={slot.key} className={`bg-white border rounded-xl shadow-sm overflow-hidden transition-all duration-200 ${setting.is_active ? 'border-gray-200' : 'border-gray-100 opacity-75'}`}>
               {/* Card Header */}
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-start">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-lg ${setting.is_active ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500'}`}>
                     {AD_ICONS[slot.key] || <LayoutTemplate className="w-5 h-5" />}
@@ -186,61 +186,75 @@ export default function AdsManagerPage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer"
-                      checked={setting.is_active}
-                      onChange={(e) => updateSetting(slot.key, 'is_active', e.target.checked)}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
+                {/* Status Selector */}
+                <div className="flex bg-gray-200 rounded-lg p-1 self-stretch sm:self-auto">
+                  <button
+                    onClick={() => {
+                      updateSetting(slot.key, 'is_active', false)
+                    }}
+                    className={`flex-1 sm:flex-none px-2 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+                      !setting.is_active
+                        ? 'bg-white text-gray-700 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Desactivado
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateSetting(slot.key, 'is_active', true)
+                      updateSetting(slot.key, 'type', 'adsense')
+                    }}
+                    className={`flex-1 sm:flex-none px-2 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+                      setting.is_active && setting.type === 'adsense'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Google Ads
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateSetting(slot.key, 'is_active', true)
+                      updateSetting(slot.key, 'type', 'custom')
+                    }}
+                    className={`flex-1 sm:flex-none px-2 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+                      setting.is_active && setting.type === 'custom'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Personalizado
+                  </button>
                 </div>
               </div>
 
               {/* Card Body */}
-              {setting.is_active && (
-                <div className="p-6 space-y-6">
-                  {/* Type Selector */}
-                  <div className="grid grid-cols-2 gap-3 p-1 bg-gray-100 rounded-lg">
-                    <button
-                      onClick={() => updateSetting(slot.key, 'type', 'adsense')}
-                      className={`flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        setting.type === 'adsense' 
-                          ? 'bg-white text-blue-600 shadow-sm' 
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      <span className="mr-2">G</span> AdSense
-                    </button>
-                    <button
-                      onClick={() => updateSetting(slot.key, 'type', 'custom')}
-                      className={`flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                        setting.type === 'custom' 
-                          ? 'bg-white text-blue-600 shadow-sm' 
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      <ImageIcon className="w-4 h-4 mr-2" />
-                      Personalizado
-                    </button>
+              <div className="p-6 space-y-6">
+                {!setting.is_active ? (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                      <Monitor className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-900">Espacio Publicitario Desactivado</h3>
+                    <p className="text-xs text-gray-500 mt-1">No se mostrará ningún anuncio en esta ubicación.</p>
                   </div>
-
-                  {/* Configuration Content */}
+                ) : (
                   <div className="min-h-[200px]">
                     {setting.type === 'adsense' ? (
-                      <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 flex items-start gap-3">
-                        <div className="p-2 bg-yellow-100 rounded-full text-yellow-600 shrink-0">
+                      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-start gap-3 animate-in fade-in duration-300">
+                        <div className="p-2 bg-blue-100 rounded-full text-blue-600 shrink-0">
                           <Code className="w-4 h-4" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-medium text-yellow-900">Configuración Automática</h4>
-                          <p className="text-sm text-yellow-700 mt-1">
-                            Este espacio mostrará anuncios de Google AdSense usando el ID configurado en el sistema.
+                          <h4 className="text-sm font-medium text-blue-900">Google AdSense Activo</h4>
+                          <p className="text-sm text-blue-700 mt-1">
+                            Este espacio está configurado para mostrar anuncios automáticos de Google AdSense.
                           </p>
-                          <div className="mt-2 inline-block px-2 py-1 bg-yellow-100 rounded text-xs font-mono text-yellow-800">
-                            ID: {slot.id}
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="px-2 py-1 bg-white rounded border border-blue-200 text-xs font-mono text-blue-800">
+                              Slot ID: {slot.id}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -298,32 +312,32 @@ export default function AdsManagerPage() {
                       </div>
                     )}
                   </div>
+                )}
 
-                  {/* Footer Actions */}
-                  <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <div className="h-6">
-                      {savedSlot === slot.key && (
-                        <span className="text-green-600 text-xs font-medium flex items-center animate-in fade-in duration-300">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Guardado
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => handleSave(slot.key)}
-                      disabled={saving === slot.key}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                      {saving === slot.key ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Save className="w-4 h-4 mr-2" />
-                      )}
-                      Guardar
-                    </button>
+                {/* Footer Actions */}
+                <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+                  <div className="h-6">
+                    {savedSlot === slot.key && (
+                      <span className="text-green-600 text-xs font-medium flex items-center animate-in fade-in duration-300">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Guardado
+                      </span>
+                    )}
                   </div>
+                  <button
+                    onClick={() => handleSave(slot.key)}
+                    disabled={saving === slot.key}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    {saving === slot.key ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4 mr-2" />
+                    )}
+                    Guardar Cambios
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
           )
         })}
