@@ -5,7 +5,7 @@ import OptimizedImage from '@/components/OptimizedImage'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Link from 'next/link'
 import { slugCategoryMap } from '@/utils/categoryUtils'
-import { ArticleSummary } from '@/lib/types/app'
+import { ArticleSummary, Category } from '@/lib/types/app'
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
