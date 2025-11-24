@@ -11,7 +11,7 @@ import { getCategorySlug } from '@/utils/categoryUtils'
 import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
 import { Metadata } from 'next'
-import { ArticleSummary } from '@/lib/types/app'
+import { ArticleSummary, Category } from '@/lib/types/app'
 import { SITE_CONFIG, PAGINATION, ADSENSE_CONFIG } from '@/lib/constants'
 
 // Metadata para homepage
