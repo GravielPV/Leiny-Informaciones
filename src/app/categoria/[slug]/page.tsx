@@ -107,7 +107,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     }
   }
 
-  const getCategoryName = (categories: Category | Category[] | undefined) => {
+  const getCategoryName = (categories: Category | Category[] | null | undefined) => {
+    if (!categories) return 'General'
     if (Array.isArray(categories)) {
       return categories[0]?.name || 'General'
     }
