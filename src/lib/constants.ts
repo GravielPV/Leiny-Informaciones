@@ -25,6 +25,15 @@ export const SITE_CONFIG = {
   },
   social: {
     twitter: '@lasinformacionesconleyni',
+    facebook: 'https://www.facebook.com/cristileyni2020/',
+    instagram: 'https://www.instagram.com/lasinformacionesconleyni/?hl=es',
+    youtube: 'https://www.youtube.com/@lasinformacionesconleyni01/featured',
+  },
+  contact: {
+    address: 'Bajos de Haina, San Cristobal',
+    phone: '+1 (809) 555-0123',
+    email: 'info@informacionesleyni.com',
+    website: 'www.informacionesleyni.com',
   }
 }
 

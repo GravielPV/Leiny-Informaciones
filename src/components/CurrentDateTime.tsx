@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 
 export default function CurrentDateTime() {
+  const [mounted, setMounted] = useState(false)
   const [currentTime, setCurrentTime] = useState('')
   const [currentDate, setCurrentDate] = useState('')
 
   useEffect(() => {
+    setMounted(true)
     const updateTime = () => {
       const now = new Date()
       setCurrentDate(now.toLocaleDateString('es-ES', {
@@ -27,16 +29,32 @@ export default function CurrentDateTime() {
     return () => clearInterval(timer)
   }, [])
 
+  if (!mounted) {
+    return (
+      <>
+        <span className="font-medium hidden sm:inline">
+          República Dominicana
+        </span>
+        <span className="font-medium sm:hidden">
+          ...
+        </span>
+        <span className="font-medium">
+          🕒 --:--
+        </span>
+      </>
+    )
+  }
+
   return (
     <>
       <span className="font-medium hidden sm:inline">
-        República Dominicana - {currentDate || 'cargando...'}
+        República Dominicana - {currentDate}
       </span>
       <span className="font-medium sm:hidden">
-        {currentDate || '...'}
+        {currentDate}
       </span>
       <span className="font-medium">
-        🕒 {currentTime || '--:--'}
+        🕒 {currentTime}
       </span>
     </>
   )

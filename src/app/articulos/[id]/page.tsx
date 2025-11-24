@@ -9,24 +9,8 @@ import AdSenseAd from '@/components/AdSenseAd'
 import DynamicAd from '@/components/DynamicAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 import { ADSENSE_CONFIG } from '@/lib/constants'
-
-interface Category {
-  id: string
-  name: string
-  color?: string
-}
-
-interface Article {
-  id: string
-  title: string
-  excerpt: string
-  content: string
-  image_url?: string
-  created_at: string
-  published_at?: string
-  author_id?: string
-  categories?: Category | Category[]
-}
+import DOMPurify from 'isomorphic-dompurify'
+import { Article, ArticleSummary, Category } from '@/lib/types/app'
 
 interface ArticlePageProps {
   params: Promise<{ id: string }>
@@ -167,6 +151,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       title,
       excerpt,
       content,
+      slug,
       image_url,
       created_at,
       published_at,
@@ -200,6 +185,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       id,
       title,
       excerpt,
+      slug,
       image_url,
       created_at,
       published_at,
@@ -213,7 +199,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     .neq('id', article.id) // Use article.id here instead of param id which might be slug
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
     .order('published_at', { ascending: false, nullsFirst: false })
-    .limit(4) as { data: Article[] | null }
+    .limit(4) as { data: ArticleSummary[] | null }
 
   // Función para formatear fecha
   const formatDate = (dateString: string) => {
@@ -232,7 +218,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     return `${dateFormatted}, ${timeFormatted}`
   }
 
-  const getCategoryName = (categories: Category | Category[] | undefined) => {
+  const getCategoryName = (categories: Category | Category[] | null | undefined) => {
+    if (!categories) return 'General'
     if (Array.isArray(categories)) {
       return categories[0]?.name || 'General'
     }
@@ -349,10 +336,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   fontFamily: '"Georgia", "Times New Roman", serif'
                 }}
                 dangerouslySetInnerHTML={{ 
-                  __html: article.content
-                    .split('\n\n')
-                    .map(paragraph => `<p class="mb-6">${paragraph.trim()}</p>`)
-                    .join('')
+                  __html: DOMPurify.sanitize(article.content)
                 }}
               />
             </div>

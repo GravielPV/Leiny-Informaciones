@@ -25,10 +25,10 @@ export default function Footer() {
               Informando a la República Dominicana con veracidad, transparencia y profesionalismo.
             </p>
             <div className="text-xs sm:text-sm text-gray-400 border-l-4 border-l-blue-600 pl-4 space-y-1 sm:space-y-2">
-              <p>📍 Bajos de Haina, San Cristobal</p>
-              <p>📞 +1 (809) 555-0123</p>
-              <p>✉️ <span className="text-blue-400">info@informacionesleyni.com</span></p>
-              <p>🌐 <span className="text-blue-400">www.informacionesleyni.com</span></p>
+              <p>📍 {SITE_CONFIG.contact.address}</p>
+              <p>📞 {SITE_CONFIG.contact.phone}</p>
+              <p>✉️ <span className="text-blue-400">{SITE_CONFIG.contact.email}</span></p>
+              <p>🌐 <span className="text-blue-400">{SITE_CONFIG.contact.website}</span></p>
             </div>
           </div>
 
@@ -61,7 +61,7 @@ export default function Footer() {
               <h5 className="font-medium mb-2 sm:mb-3 text-blue-400 text-sm sm:text-base">Síguenos</h5>
               <div className="flex space-x-2 sm:space-x-3">
                 <a 
-                  href="https://www.facebook.com/cristileyni2020/" 
+                  href={SITE_CONFIG.social.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-blue-600 hover:bg-blue-700 p-2.5 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-blue-500/50"
@@ -72,7 +72,7 @@ export default function Footer() {
                   </svg>
                 </a>
                 <a 
-                  href="https://www.instagram.com/lasinformacionesconleyni/?hl=es" 
+                  href={SITE_CONFIG.social.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 p-2.5 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-pink-500/50"
@@ -83,7 +83,7 @@ export default function Footer() {
                   </svg>
                 </a>
                 <a 
-                  href="https://www.youtube.com/@lasinformacionesconleyni01/featured" 
+                  href={SITE_CONFIG.social.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-red-600 hover:bg-red-700 p-2.5 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-red-500/50"

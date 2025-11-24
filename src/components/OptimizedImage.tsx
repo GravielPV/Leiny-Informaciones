@@ -83,13 +83,14 @@ const OptimizedImage = ({
   }
 
   return (
-    <div className={`relative ${isLoading ? 'animate-pulse bg-gray-200' : ''}`} style={{ width, height }}>
+    <div className={`relative ${isLoading ? 'animate-pulse bg-gray-200' : ''}`}>
       <Image
         src={imageSrc}
         alt={alt}
         width={width}
         height={height}
         className={`${className} transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        style={{ width: '100%', height: 'auto' }}
         onError={handleError}
         onLoad={handleLoad}
         priority={priority}
@@ -99,7 +100,7 @@ const OptimizedImage = ({
         blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg=="
       />
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse rounded" style={{ width, height }} />
+        <div className="absolute inset-0 bg-gray-200 animate-pulse rounded" />
       )}
     </div>
   )

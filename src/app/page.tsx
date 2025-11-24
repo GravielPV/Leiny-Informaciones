@@ -11,7 +11,7 @@ import { getCategorySlug } from '@/utils/categoryUtils'
 import { isNewArticle } from '@/utils/articleUtils'
 import { TrendingUp, Flame } from 'lucide-react'
 import { Metadata } from 'next'
-import { Database } from '@/lib/types/database'
+import { ArticleSummary } from '@/lib/types/app'
 import { SITE_CONFIG, PAGINATION, ADSENSE_CONFIG } from '@/lib/constants'
 
 // Metadata para homepage
@@ -45,13 +45,6 @@ export const metadata: Metadata = {
   },
 }
 
-// Definir tipos para TypeScript
-type Category = Pick<Database['public']['Tables']['categories']['Row'], 'id' | 'name' | 'color'>
-
-interface Article extends Pick<Database['public']['Tables']['articles']['Row'], 'id' | 'title' | 'content' | 'excerpt' | 'image_url' | 'created_at' | 'published_at' | 'author_id'> {
-  categories: Category | Category[] | null
-}
-
 export default async function HomePage({
   searchParams,
 }: {
@@ -65,7 +58,7 @@ export default async function HomePage({
   // Obtener el total de artículos publicados
   const { count: totalArticles } = await supabase
     .from('articles')
-    .select('*', { count: 'exact', head: true })
+    .select('*', { count: 'estimated', head: true })
     .eq('status', 'published')
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
 
@@ -78,7 +71,7 @@ export default async function HomePage({
       id,
       title,
       excerpt,
-      content,
+      slug,
       image_url,
       created_at,
       published_at,
@@ -92,7 +85,7 @@ export default async function HomePage({
     .eq('status', 'published')
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
     .order('published_at', { ascending: false, nullsFirst: false })
-    .range(offset, offset + PAGINATION.ARTICLES_PER_PAGE - 1) as { data: Article[] | null }
+    .range(offset, offset + PAGINATION.ARTICLES_PER_PAGE - 1) as { data: ArticleSummary[] | null }
 
   // Obtener artículo destacado (más reciente)
   const featuredArticle = articles && articles.length > 0 ? articles[0] : null

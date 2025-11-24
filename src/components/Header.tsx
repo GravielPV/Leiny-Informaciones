@@ -41,12 +41,22 @@ export default function Header() {
   const router = useRouter()
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
+      if (timeoutId) return
+
+      timeoutId = setTimeout(() => {
+        setIsScrolled(window.scrollY > 20)
+        timeoutId = undefined as unknown as NodeJS.Timeout
+      }, 100)
     }
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (timeoutId) clearTimeout(timeoutId)
+    }
   }, [])
 
   // Click outside handler

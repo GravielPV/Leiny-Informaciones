@@ -5,25 +5,7 @@ import OptimizedImage from '@/components/OptimizedImage'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Link from 'next/link'
 import { slugCategoryMap } from '@/utils/categoryUtils'
-
-// Definir tipos para TypeScript
-interface Category {
-  id: string
-  name: string
-  color?: string
-}
-
-interface Article {
-  id: string
-  title: string
-  excerpt: string
-  content: string
-  image_url?: string
-  created_at: string
-  published_at?: string
-  author_id?: string
-  categories?: Category | Category[]
-}
+import { ArticleSummary } from '@/lib/types/app'
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
@@ -82,7 +64,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       id,
       title,
       excerpt,
-      content,
+      slug,
       image_url,
       created_at,
       published_at,
@@ -96,7 +78,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     .eq('status', 'published')
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
     .order('published_at', { ascending: false, nullsFirst: false })
-    .limit(20) as { data: Article[] | null }
+    .limit(20) as { data: ArticleSummary[] | null }
 
   // Filtrar artículos por categoría
   const filteredArticles = articles?.filter(article => {
