@@ -9,7 +9,7 @@ import AdSenseAd from '@/components/AdSenseAd'
 import DynamicAd from '@/components/DynamicAd'
 import { getCategorySlug } from '@/utils/categoryUtils'
 import { ADSENSE_CONFIG } from '@/lib/constants'
-import DOMPurify from 'isomorphic-dompurify'
+// import DOMPurify from 'isomorphic-dompurify'
 import { Article, ArticleSummary, Category } from '@/lib/types/app'
 
 interface ArticlePageProps {
@@ -228,12 +228,16 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const sanitizeContent = (content: string) => {
     if (!content) return ''
+    // Temporalmente deshabilitado para depuración
+    return content
+    /*
     try {
       return DOMPurify.sanitize(content)
     } catch (error) {
       console.error('Error sanitizing content:', error)
       return content
     }
+    */
   }
 
   // Structured Data (JSON-LD) para SEO
