@@ -226,6 +226,16 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     return categories?.name || 'General'
   }
 
+  const sanitizeContent = (content: string) => {
+    if (!content) return ''
+    try {
+      return DOMPurify.sanitize(content)
+    } catch (error) {
+      console.error('Error sanitizing content:', error)
+      return content
+    }
+  }
+
   // Structured Data (JSON-LD) para SEO
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasinformacionesconleyni.com'
   const structuredData = {
@@ -336,7 +346,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   fontFamily: '"Georgia", "Times New Roman", serif'
                 }}
                 dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(article.content)
+                  __html: sanitizeContent(article.content)
                 }}
               />
             </div>
