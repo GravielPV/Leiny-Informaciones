@@ -7,6 +7,7 @@ import Link from 'next/link'
 import ImageUrlInput from '@/components/admin/ImageUrlInput'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import { ArrowLeft, Save, Eye, Calendar, Tag, FileText, Image as ImageIcon, Layout } from 'lucide-react'
+import { updateArticle } from '../../actions'
 
 interface Article {
   id: string
@@ -96,26 +97,16 @@ export default function EditArticlePage() {
     setError('')
 
     try {
-      const { error } = await supabase
-        .from('articles')
-        .update({
-          title: formData.title,
-          content: formData.content,
-          excerpt: formData.excerpt,
-          status: formData.status,
-          category_id: formData.category_id,
-          image_url: formData.image_url || null,
-          updated_at: new Date().toISOString(),
-          published_at: formData.published_at ? new Date(formData.published_at).toISOString() : (formData.status === 'published' && !article?.published_at ? new Date().toISOString() : article?.published_at)
-        })
-        .eq('id', params.id)
-
-      if (error) throw error
+      await updateArticle(params.id as string, {
+        ...formData,
+        original_published_at: article?.published_at || null
+      })
 
       router.push('/admin/articles')
-    } catch (error) {
+      router.refresh()
+    } catch (error: any) {
       console.error('Error updating article:', error)
-      setError('Error al actualizar el artículo')
+      setError(error.message || 'Error al actualizar el artículo')
     } finally {
       setSaving(false)
     }
