@@ -1,20 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Save, Play } from 'lucide-react'
-import { createLiveVideo } from '@/lib/supabase/liveVideos'
+import { createLiveVideo, getAllLiveVideos } from '@/lib/supabase/liveVideos'
 import { extractYouTubeVideoId, getYouTubeThumbnail } from '@/utils/youtubeUtils'
 
 export default function NewLiveVideoPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [checkingLimit, setCheckingLimit] = useState(true)
   const [error, setError] = useState('')
   const [preview, setPreview] = useState<{
     videoId: string
     thumbnail: string
     isLive: boolean
   } | null>(null)
+
+  useEffect(() => {
+    const checkLimit = async () => {
+      try {
+        const videos = await getAllLiveVideos()
+        if (videos.length > 0) {
+          alert('Ya existe un video configurado. Debes eliminar el anterior para agregar uno nuevo.')
+          router.push('/admin/live-videos')
+        }
+      } catch (error) {
+        console.error('Error checking video limit:', error)
+      } finally {
+        setCheckingLimit(false)
+      }
+    }
+    checkLimit()
+  }, [router])
 
   const [formData, setFormData] = useState({
     title: '',
@@ -81,6 +99,14 @@ export default function NewLiveVideoPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (checkingLimit) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
   return (

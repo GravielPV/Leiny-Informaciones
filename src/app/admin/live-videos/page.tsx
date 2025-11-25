@@ -117,15 +117,39 @@ export default function LiveVideosAdminPage() {
             Deshabilitar Todos
           </button>
           
-          <a
-            href="/admin/live-videos/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Video
-          </a>
+          {videos.length === 0 ? (
+            <a
+              href="/admin/live-videos/new"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Video
+            </a>
+          ) : (
+            <button
+              disabled
+              className="inline-flex items-center px-4 py-2 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"
+              title="Debes eliminar el video existente para agregar uno nuevo"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Video
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Info Banner */}
+      {videos.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 flex items-start gap-3">
+          <div className="flex-shrink-0">
+            <CheckCircle className="h-5 w-5 text-blue-400" aria-hidden="true" />
+          </div>
+          <div className="text-sm text-blue-700">
+            <p className="font-medium">Límite de videos alcanzado</p>
+            <p>Solo se permite tener un video configurado a la vez. Para agregar uno nuevo, primero debes eliminar el actual.</p>
+          </div>
+        </div>
+      )}
 
       {/* Error */}
       {error && (
