@@ -51,7 +51,7 @@ export default function CategoriesPage() {
           const { count } = await supabase
             .from('articles')
             .select('*', { count: 'exact', head: true })
-            .eq('category', category.name)
+            .eq('category_id', category.id)
 
           return {
             ...category,
