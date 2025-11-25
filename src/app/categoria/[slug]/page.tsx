@@ -57,7 +57,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound()
   }
 
-  // Obtener artículos de la categoría específica
+  // Obtener artículos de la categoría específica usando !inner join para filtrar en DB
   const { data: articles } = await supabase
     .from('articles')
     .select(`
@@ -69,24 +69,20 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       created_at,
       published_at,
       author_id,
-      categories (
+      categories!inner (
         id,
         name,
         color
       )
     `)
+    .eq('categories.name', categoryName)
     .eq('status', 'published')
     .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
     .order('published_at', { ascending: false, nullsFirst: false })
     .limit(20) as { data: ArticleSummary[] | null }
 
-  // Filtrar artículos por categoría
-  const filteredArticles = articles?.filter(article => {
-    if (Array.isArray(article.categories)) {
-      return article.categories.some((cat: Category) => cat.name === categoryName)
-    }
-    return article.categories?.name === categoryName
-  }) || []
+  // Ya no necesitamos filtrar en memoria porque la query lo hace
+  const filteredArticles = articles || []
 
   // Función para formatear fecha
   const formatDate = (dateString: string) => {
