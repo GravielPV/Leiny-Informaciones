@@ -101,12 +101,16 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: false })
     .limit(5)
   
-  // Simular vistas del mes (esto debería venir de una tabla de analytics real)
-  // Por ahora usamos un número basado en artículos publicados
-  const monthlyViews = (publishedArticles || 0) * 150 // Promedio de 150 vistas por artículo
-  const formattedViews = monthlyViews >= 1000 
-    ? `${(monthlyViews / 1000).toFixed(1)}k` 
-    : monthlyViews.toString()
+  // Calcular vistas reales sumando la columna 'views' de todos los artículos
+  const { data: allArticlesViews } = await supabase
+    .from('articles')
+    .select('views')
+  
+  const totalViews = allArticlesViews?.reduce((sum, article) => sum + (article.views || 0), 0) || 0
+  
+  const formattedViews = totalViews >= 1000 
+    ? `${(totalViews / 1000).toFixed(1)}k` 
+    : totalViews.toString()
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -163,11 +167,11 @@ export default async function AdminDashboard() {
         />
         
         <StatCard
-          title="Vistas del Mes"
+          title="Total de Lecturas"
           value={formattedViews}
           icon={TrendingUp}
-          change={`~${Math.round((publishedArticles || 0) * 150)} vistas estimadas`}
-          changeType="positive"
+          change="Lecturas reales acumuladas"
+          changeType="neutral"
           color="purple"
         />
       </div>

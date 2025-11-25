@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Eye } from 'lucide-react'
+import { incrementArticleView } from '@/app/actions'
 
 interface ViewCounterProps {
   articleId: string
@@ -9,32 +10,31 @@ interface ViewCounterProps {
 }
 
 export default function ViewCounter({ articleId, initialViews = 0 }: ViewCounterProps) {
-  const [views] = useState(() => {
-    // Inicializar desde localStorage si está disponible
-    if (typeof window !== 'undefined') {
-      const viewedKey = `article_viewed_${articleId}`
-      const hasViewed = sessionStorage.getItem(viewedKey)
-      
-      if (!hasViewed) {
-        // Primera vista - incrementar
-        const storageKey = `article_views_${articleId}`
-        const storedViews = localStorage.getItem(storageKey)
-        const newViews = storedViews ? parseInt(storedViews, 10) + 1 : initialViews + 1
-        
-        localStorage.setItem(storageKey, newViews.toString())
-        sessionStorage.setItem(viewedKey, 'true')
-        return newViews
-      } else {
-        // Ya visto - solo leer
-        const storageKey = `article_views_${articleId}`
-        const storedViews = localStorage.getItem(storageKey)
-        return storedViews ? parseInt(storedViews, 10) : initialViews
+  const [views, setViews] = useState(initialViews)
+  const [hasIncremented, setHasIncremented] = useState(false)
+
+  useEffect(() => {
+    if (hasIncremented) return
+
+    const increment = async () => {
+      const storageKey = `viewed_article_${articleId}`
+      if (typeof window !== 'undefined' && sessionStorage.getItem(storageKey)) return
+
+      try {
+        await incrementArticleView(articleId)
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(storageKey, 'true')
+        }
+        setViews(prev => prev + 1)
+        setHasIncremented(true)
+      } catch (error) {
+        console.error('Error updating views:', error)
       }
     }
-    return initialViews
-  })
 
-  // Formatear número con comas
+    increment()
+  }, [articleId, hasIncremented])
+
   const formatViews = (num: number): string => {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M'
