@@ -3,6 +3,7 @@ import Link from 'next/link'
 import ArticleActions from './ArticleActions'
 import StatusBadge from '@/components/admin/StatusBadge'
 import StatCard from '@/components/admin/StatCard'
+import ArticleSearch from '@/components/admin/ArticleSearch'
 import { Database } from '@/lib/types/database'
 import { formatDate } from '@/lib/utils'
 import { FileText, CheckCircle, Edit } from 'lucide-react'
@@ -11,10 +12,16 @@ type Article = Pick<Database['public']['Tables']['articles']['Row'], 'id' | 'tit
   categories: Pick<Database['public']['Tables']['categories']['Row'], 'id' | 'name'> | null
 }
 
-export default async function ArticlesPage() {
+export default async function ArticlesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>
+}) {
   const supabase = await createClient()
+  const params = await searchParams
+  const query = params.query || ''
 
-  const { data: articles, error } = await supabase
+  let supabaseQuery = supabase
     .from('articles')
     .select(`
       id,
@@ -29,6 +36,12 @@ export default async function ArticlesPage() {
       )
     `)
     .order('created_at', { ascending: false })
+
+  if (query) {
+    supabaseQuery = supabaseQuery.ilike('title', `%${query}%`)
+  }
+
+  const { data: articles, error } = await supabaseQuery
 
   if (error) {
     console.error('Error fetching articles:', error)
@@ -76,6 +89,11 @@ export default async function ArticlesPage() {
           icon={Edit}
           color="yellow"
         />
+      </div>
+
+      {/* Search Bar */}
+      <div className="mt-8">
+        <ArticleSearch />
       </div>
 
       {/* Articles List */}
