@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       )
     `)
     .eq('status', 'published')
-    .lte('published_at', new Date().toISOString())
+    // .lte('published_at', new Date().toISOString()) // Deshabilitado temporalmente por problemas de zona horaria
 
   if (isUuid) {
     query = query.eq('id', id)
@@ -163,7 +163,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       )
     `)
     .eq('status', 'published')
-    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    // .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`) // Deshabilitado temporalmente por problemas de zona horaria
 
   if (isUuid) {
     query = query.eq('id', id)
@@ -197,7 +197,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     `)
     .eq('status', 'published')
     .neq('id', article.id) // Use article.id here instead of param id which might be slug
-    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    // .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`) // Deshabilitado temporalmente por problemas de zona horaria
     .order('published_at', { ascending: false, nullsFirst: false })
     .limit(4) as { data: ArticleSummary[] | null }
 
