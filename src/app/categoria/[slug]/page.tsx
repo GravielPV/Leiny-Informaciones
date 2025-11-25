@@ -57,7 +57,20 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound()
   }
 
-  // Obtener artículos de la categoría específica usando !inner join para filtrar en DB
+  // 1. Primero buscamos el ID de la categoría para asegurar un filtrado exacto
+  const { data: categoryData } = await supabase
+    .from('categories')
+    .select('id')
+    .ilike('name', categoryName)
+    .single()
+
+  if (!categoryData) {
+    console.error(`Category ID not found for name: ${categoryName}`)
+    // Si no existe la categoría en BD, retornamos 404
+    notFound()
+  }
+
+  // 2. Ahora buscamos los artículos usando el ID de la categoría (mucho más robusto)
   const { data: articles } = await supabase
     .from('articles')
     .select(`
@@ -69,19 +82,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       created_at,
       published_at,
       author_id,
-      categories!inner (
+      categories (
         id,
         name,
         color
       )
     `)
-    .eq('categories.name', categoryName)
+    .eq('category_id', categoryData.id)
     .eq('status', 'published')
-    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    // .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`) // Deshabilitado temporalmente por problemas de zona horaria
     .order('published_at', { ascending: false, nullsFirst: false })
     .limit(20) as { data: ArticleSummary[] | null }
 
-  // Ya no necesitamos filtrar en memoria porque la query lo hace
   const filteredArticles = articles || []
 
   // Función para formatear fecha

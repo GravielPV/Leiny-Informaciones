@@ -60,7 +60,7 @@ export default async function HomePage({
     .from('articles')
     .select('*', { count: 'estimated', head: true })
     .eq('status', 'published')
-    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    // .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`) // Deshabilitado temporalmente por problemas de zona horaria
 
   const totalPages = Math.ceil((totalArticles || 0) / PAGINATION.ARTICLES_PER_PAGE)
 
@@ -83,7 +83,7 @@ export default async function HomePage({
       )
     `)
     .eq('status', 'published')
-    .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`)
+    // .or(`published_at.lte.${new Date().toISOString()},published_at.is.null`) // Deshabilitado temporalmente por problemas de zona horaria
     .order('published_at', { ascending: false, nullsFirst: false })
     .range(offset, offset + PAGINATION.ARTICLES_PER_PAGE - 1) as { data: ArticleSummary[] | null }
 
