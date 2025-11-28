@@ -415,7 +415,7 @@ export default async function HomePage({
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 font-medium">- Leiny Jimenez, Directora Editorial</p>
+                    <p className="text-xs text-gray-600 font-medium">- Leyni Jimenez, Directora Editorial</p>
                   </div>
                 </FadeInSection>
 

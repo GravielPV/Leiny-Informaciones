@@ -3,7 +3,7 @@
 Sitio web profesional de noticias construido con Next.js, TypeScript y Supabase.
 
 ## 🚀 Demo en Vivo
-- **Sitio web:** [https://leiny-informaciones.netlify.app](https://leiny-informaciones.netlify.app)
+- **Sitio web:** [https://leyni-informaciones.netlify.app](https://leyni-informaciones.netlify.app)
 - **Panel de administración:** `/admin`
 
 ## ✨ Características
@@ -56,7 +56,7 @@ src/
 1. **Clonar el repositorio**
 ```bash
 git clone [repository-url]
-cd pagina-para-leiny
+cd pagina-para-leyni
 ```
 
 2. **Instalar dependencias**
